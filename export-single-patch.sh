@@ -4,8 +4,9 @@ patch=$1
 output=$2
 
 PATCH_FILE=$(git -C ~/chromium/src/ show -s $patch | grep FILE: | sed 's/FILE://g' | sed 's/^[ \t]*//;s/[ \t]*$//')
-if [ -z "$output" ] 
+if [ -z "$output" ]
 then
+	PATCH_FILE=$(git -C ~/chromium/src/ show -s $patch | tail -n 1 | xargs)
 	echo Exporting $patch ~/bromite/build/patches-new/$PATCH_FILE
 else
 	PATCH_FILE=$output
@@ -13,6 +14,7 @@ else
 fi
 
 git -C ~/chromium/src/ format-patch -1 --keep-subject --stdout --full-index --zero-commit --no-signature $patch >~/bromite/build/patches-new/$PATCH_FILE
+echo "   exported"
 
 while read line; do
 	#echo $line
@@ -33,3 +35,6 @@ sed -i '/^new mode /d' ~/bromite/build/patches-new/$PATCH_FILE
 echo "-- " >> ~/bromite/build/patches-new/$PATCH_FILE
 echo "2.17.1" >> ~/bromite/build/patches-new/$PATCH_FILE
 echo "" >> ~/bromite/build/patches-new/$PATCH_FILE
+
+echo "   done."
+echo ""

@@ -1,75 +1,68 @@
 #!/bin/bash
 
 PATCH=$1
-
-if [ -z "$2" ]
-then
-	PATCH_NEW_PATH="/home/cab/bromite/build/patches-new"
-else
-	PATCH_NEW_PATH=$2
-fi
+LOG_FILE=~/build.log
 
 dos2unix $PATCH
 
-echo ""
-echo "Applying patch $PATCH"
-git apply --reject --whitespace=fix $PATCH
+OK=0
+DOBUILD=1
+DOEXPORT=1
 
-for file in $(find . -name *.rej); do
-		echo " -> Check $file";
-		wiggle --replace ${file::-4} $file && rm $file && rm ${file::-4}.porig && echo "    OK";
-done
-
-OK=1
-for file in $(find . -name *.rej); do
-	echo "---Found: $file";
-	OK=0
-done
+echo "" | tee -a ${LOG_FILE}
+echo "Applying patch $PATCH" | tee -a ${LOG_FILE}
+git apply --reject --whitespace=fix $PATCH && OK=1
 
 if [[ OK -eq 0 ]]; then
-	echo "Patch not apply cleanly. Please fix..."
-	echo "Press return"
-	read  -n 1
+	for file in $(find . -name *.rej); do
+		echo " -> Check $file" | tee -a ${LOG_FILE};
+		wiggle --no-ignore --replace ${file::-4} $file && rm $file && rm ${file::-4}.porig && echo "    OK";
+	done
+
+	OK=1
+	for file in $(find . -name *.rej); do
+		echo "---Found: $file" | tee -a ${LOG_FILE};
+		git add ${file::-4}
+		OK=0
+	done
+
+	if [[ OK -eq 0 ]]; then
+		DOBUILD=1
+		echo "Current patch $PATCH" | tee -a ${LOG_FILE}
+		echo "Patch not apply cleanly. Please fix... (next phase: build)" | tee -a ${LOG_FILE}
+		echo "Press return"
+		read  -n 1
+	else
+		echo "Patch not apply cleanly. Wiggle done!" | tee -a ${LOG_FILE}
+	fi
+
+	echo "  Deleting rej"
+        find . -type f -name '*.rej' -delete
+        find . -type f -name '*.porig' -delete
 
 else
-	echo "Patch apply cleanly."
+	echo "Patch apply cleanly." | tee -a ${LOG_FILE}
+	DOBUILD=0
+fi
+
+if [[ DOBUILD -eq 1 ]]; then
+	OK=0
+	echo "Building ${PATCH}: chrome_public_apk" | tee -a ${LOG_FILE}
+	date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
+	autoninja -C out/arm64 chrome_public_apk && OK=1
+	date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
+
+	DOEXPORT=1
 
 fi
 
-echo "  Deleting rej"
-find . -type f -name '*.rej' -delete
-find . -type f -name '*.porig' -delete
+if [[ OK -eq 0 ]]; then
+	echo "Read to add $PATCH. Press return"
+	read  -n 1
 
-#echo "Read to add. Press return"
-#read  -n 1
+	DOEXPORT=1
+fi
 
-echo "  Creating new patch"
-git add .
-
-HEAD=$(sed -n '1,/---/ p' $PATCH | sed '/^---/d')
-CONTENT=$(git -C ~/chromium/src/ diff --cached --binary)
-
-PATCH_FILE=$PATCH_NEW_PATH/$(basename $PATCH)
-rm $PATCH_FILE
-echo "$HEAD" >$PATCH_FILE
-
-NEWLINE=$(tail -n 1 "$PATCH_FILE")
-echo $NEWLINE
-if [[ "$NEWLINE" == Subject:* ]]; then
-	echo "" >>$PATCH_FILE
-else
-	NEWLINE=$(tail -n 2 "$PATCH_FILE" | head -n 1)
-	if [[ "$NEWLINE" == Subject:* ]]; then
-		echo "" >>$PATCH_FILE
-	fi
-fi				
-
-echo "FILE:$(basename $PATCH)" >>$PATCH_FILE
-echo "---" >>$PATCH_FILE
-echo "$CONTENT" >>$PATCH_FILE
-
-git reset --hard
-git clean -f -d
-
-echo "  Applying new patch"
-git am $PATCH_FILE
+if [[ DOEXPORT -eq 1 ]]; then
+    bash ~/buildtools/create-from-patch.sh $PATCH $2
+fi
