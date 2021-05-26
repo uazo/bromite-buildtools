@@ -5,8 +5,8 @@ NC='\033[0m' # No Color
 
 #cd ~
 
-sudo apt-get install python
-sudo apt-get install wiggle
+#sudo apt-get install python
+#sudo apt-get install wiggle
 
 echo -e ${RED} -------- download bromite repo ${NC}
 git clone https://github.com/bromite/bromite
@@ -19,7 +19,9 @@ echo -e ${RED} -------- lastest version is: $VERSION ${NC}
 
 cd ..
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-PATH=./chromium/src/third_party/llvm-build/Release+Asserts/bin:./depot_tools/:/usr/local/go/bin:$PATH
+PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
+
+env
 
 echo -e ${RED} -------- download chromium repo ${NC}
 mkdir ./chromium
