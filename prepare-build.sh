@@ -19,6 +19,12 @@ echo -e ${RED} -------- lastest version is: $VERSION ${NC}
 
 cd ..
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+# apply patchs
+cd depot_tools/
+git apply ../bromite-buildtools/depot_tools.diff
+cd ..
+
 PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
 
 env

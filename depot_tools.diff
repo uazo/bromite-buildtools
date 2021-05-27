@@ -1,10 +1,9 @@
 diff --git a/gclient_scm.py b/gclient_scm.py
-index 8a3410a8..f94af977 100644
 --- a/gclient_scm.py
 +++ b/gclient_scm.py
 @@ -1012,28 +1012,35 @@ class GitWrapper(SCMWrapper):
      gclient_utils.safe_makedirs(parent_dir)
- 
+
      template_dir = None
 +    use_fetch = False
 +
@@ -37,7 +36,7 @@ index 8a3410a8..f94af977 100644
        else:
          # Otherwise, we're just interested in the HEAD. Just use --depth.
          clone_cmd.append('--depth=1')
- 
+
 -    tmp_dir = tempfile.mkdtemp(
 -        prefix='_gclient_%s_' % os.path.basename(self.checkout_path),
 -        dir=parent_dir)
@@ -52,7 +51,7 @@ index 8a3410a8..f94af977 100644
 @@ -1328,6 +1335,9 @@ class GitWrapper(SCMWrapper):
      if refspec:
        fetch_cmd.append(refspec)
- 
+
 +    if hasattr(options, 'no_history') and options.no_history:
 +      fetch_cmd.append('--depth=1')
 +
