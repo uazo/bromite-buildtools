@@ -17,22 +17,24 @@ git pull
 VERSION=$( cat ./build/RELEASE )
 echo -e ${RED} -------- lastest version is: $VERSION ${NC}
 
+echo -e ${RED} -------- cloning depot_tools ${NC}
 cd ..
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
-# apply patchs
+echo -e ${RED} -------- apply depot_tools patch ${NC}
 cd depot_tools/
 git apply ../bromite-buildtools/depot_tools.diff
 cd ..
 
+echo -e ${RED} -------- set envs ${NC}
 PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
-
 env
 
 echo -e ${RED} -------- download chromium repo ${NC}
 mkdir ./chromium
 cd ./chromium
 
+echo -e ${RED} -------- download chromium repo ${NC}
 gclient root
 
 mkdir ./src
@@ -57,17 +59,19 @@ echo >>../.gclient "  },"
 echo >>../.gclient "]"
 echo >>../.gclient "target_os=['android']"
 
-#echo -e ${RED} -------- sync other chromium repos ${NC}
-
-#gclient metrics --opt-out
 git submodule foreach git config -f ./.git/config submodule.$name.ignore all
 git config --add remote.origin.fetch '+refs/tags/*:refs/tags/*'
 #git config diff.ignoreSubmodules all
 
-gclient sync -D --no-history --nohooks --output-json=gclient-sync.log
+echo -e ${RED} -------- sync third_party repos ${NC}
+gclient sync -D --no-history --nohooks
 
 git config user.email "you@example.com"
 git config user.name "Your Name"
 
 # remove origin for chromium
-git remote remove origin
+# git remote remove origin
+
+echo -e ${RED} -------- running hooks ${NC}
+sudo build/install-build-deps-android.sh
+gclient runhooks
