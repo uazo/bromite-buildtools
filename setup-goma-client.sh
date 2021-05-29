@@ -11,7 +11,7 @@ PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_too
 cipd install infra/goma/client/linux-amd64 -root $PWD/goma
 
 cat "nomatter" >$PWD/.debug_auth_file
-cp bromite-buildtools/goma_auth.py $PWD/goma/
+sudo cp $PWD/bromite-buildtools/goma_auth.py $PWD/goma/
 
 export GOMA_SERVER_HOST=127.0.0.1
 export GOMA_SERVER_PORT=5050
