@@ -1,13 +1,5 @@
 #!/bin/bash
 
-#------------------
-git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-cd depot_tools/
-git apply ../bromite-buildtools/depot_tools.diff
-cd ..
-PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
-#------------------
-
 cipd install infra/goma/client/linux-amd64 -root $PWD/goma
 
 cat "nomatter" >$PWD/.debug_auth_file
