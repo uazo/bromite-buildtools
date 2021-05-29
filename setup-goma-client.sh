@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo -e ${RED} -------- set envs ${NC}
+PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
+
 cipd install infra/goma/client/linux-amd64 -root $PWD/goma
 
 cat "nomatter" >$PWD/.debug_auth_file
