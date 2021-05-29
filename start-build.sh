@@ -13,7 +13,7 @@ PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_too
 cd chromium/src
 
 echo -e ${RED} -------- gn gen ${NC}
-gn gen --args="$(cat $PWD/bromite/build/GN_ARGS) target_cpu=\"x86\" use_goma=true goma_dir=\"$PWD/goma\" " out/x86
+gn gen --args="$(cat ../../bromite/build/GN_ARGS) target_cpu=\"x86\" use_goma=true goma_dir=\"../../goma\" " out/x86
 
 echo -e ${RED} -------- checking prebuild ${NC}
 rm out.$GITHUB_SHA.tar.gz
