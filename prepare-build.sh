@@ -3,8 +3,6 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-#cd ~
-
 #sudo apt-get install python
 #sudo apt-get install wiggle
 
@@ -34,7 +32,6 @@ echo -e ${RED} -------- download chromium repo ${NC}
 mkdir ./chromium
 cd ./chromium
 
-echo -e ${RED} -------- download chromium repo ${NC}
 gclient root
 
 mkdir ./src
@@ -75,3 +72,12 @@ git config user.name "Your Name"
 echo -e ${RED} -------- running hooks ${NC}
 sudo build/install-build-deps-android.sh
 gclient runhooks
+
+echo -e ${RED} -------- packing chromium dir ${NC}
+cd ../..
+tar -czf chromium.$VERSION_SHA.tar.gz ./chromium
+
+echo -e ${RED} -------- uploading to storage ${NC}
+lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; put chromium.$VERSION_SHA.tar.gz; quit"
+rm chromium.$VERSION_SHA.tar.gz
+
