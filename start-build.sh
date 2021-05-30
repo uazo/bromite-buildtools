@@ -7,6 +7,8 @@ NC='\033[0m' # No Color
 #    GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
 #fi
 
+sudo apt-get install -y libxkbcommon-x11-0 libxkbcommon-dev
+
 echo -e ${RED} -------- set envs ${NC}
 PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
 
