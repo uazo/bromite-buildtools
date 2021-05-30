@@ -6,6 +6,7 @@ NC='\033[0m' # No Color
 #sudo apt-get install python
 #sudo apt-get install wiggle
 sudo apt-get install lftp
+sudo apt-get remove --auto-remove libapache2-mod-php7.4
 
 echo -e ${RED} -------- download bromite repo ${NC}
 git clone https://github.com/bromite/bromite
