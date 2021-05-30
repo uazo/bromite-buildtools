@@ -90,13 +90,16 @@ if [[ OK -eq 0 ]]; then
 
     echo -e ${RED} -------- uploading to storage ${NC}
     lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; put chromium.$VERSION.tar.gz; quit"
+
+    rm chromium.$VERSION.tar.gz
 else
     echo -e ${RED} -------- unpacking ${NC}
     tar xf chromium.$VERSION.tar.gz
+
+    rm chromium.$VERSION.tar.gz
 
     echo -e ${RED} -------- running install-build-deps-android ${NC}
     sudo chromium/src/build/install-build-deps-android.sh
 fi
 
-rm chromium.$VERSION.tar.gz
 
