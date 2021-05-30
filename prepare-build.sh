@@ -33,7 +33,7 @@ PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_too
 echo -e ${RED} -------- download chromium pre-prepared ${NC}
 rm chromium.$VERSION.tar.gz
 #wget -qO- ftp://$FTP_USER:$FTP_PWD@$FTP_HOST/bromite/chromium.$VERSION.tar.gz | tar xz - && OK=1 || OK=0
-lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set net:socket-buffer 4000000; set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; pget -n 4 chromium.$VERSION.tar.gz; quit" && OK=1 || OK=0
+lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; get chromium.$VERSION.tar.gz; quit" && OK=1 || OK=0
 if [[ OK -eq 0 ]]; then
     echo -e ${RED} -------- not found ${NC}
 
