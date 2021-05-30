@@ -29,8 +29,9 @@ echo -e ${RED} -------- set envs ${NC}
 PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
 
 echo -e ${RED} -------- download chromium pre-prepared ${NC}
-rm chromium.$VERSION.tar.gz
-lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; get chromium.$VERSION.tar.gz; quit" && OK=1 || OK=0
+#rm chromium.$VERSION.tar.gz
+wget -qO- ftp://$FTP_USER:$FTP_PWD@$FTP_HOST/bromite/chromium.$VERSION.tar.gz | tar xz - && OK=1 || OK=0
+#lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; get chromium.$VERSION.tar.gz; quit" && OK=1 || OK=0
 if [[ OK -eq 0 ]]; then
     echo -e ${RED} -------- not found ${NC}
 
@@ -88,9 +89,12 @@ if [[ OK -eq 0 ]]; then
     echo -e ${RED} -------- uploading to storage ${NC}
     lftp $FTP_HOST -u $FTP_USER,$FTP_PWD -e "set ftp:ssl-force true; set ssl:verify-certificate false; cd /bromite; put chromium.$VERSION.tar.gz; quit"
 else
-    echo -e ${RED} -------- unpacking ${NC}
+    echo -e ${RED} -------- unpacked ${NC}
 
-    tar xf chromium.$VERSION.tar.gz
+    echo -e ${RED} -------- running install-build-deps-android ${NC}
+    sudo chromium/src/build/install-build-deps-android.sh
+
+    #tar xf chromium.$VERSION.tar.gz
 fi
 
 rm chromium.$VERSION.tar.gz
