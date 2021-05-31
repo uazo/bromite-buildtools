@@ -28,7 +28,7 @@ git apply ../bromite-buildtools/depot_tools.diff
 cd ..
 
 echo -e ${RED} -------- set envs ${NC}
-PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
+PATH=$GITHUB_WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$GITHUB_WORKSPACE/depot_tools/:/usr/local/go/bin:$PATH
 
 echo -e ${RED} -------- download chromium pre-prepared ${NC}
 rm chromium.$VERSION.tar.gz

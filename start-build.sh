@@ -10,12 +10,12 @@ NC='\033[0m' # No Color
 #sudo apt-get install -y libxkbcommon-x11-0 libxkbcommon-dev
 
 echo -e ${RED} -------- set envs ${NC}
-PATH=$PWD/chromium/src/third_party/llvm-build/Release+Asserts/bin:$PWD/depot_tools/:/usr/local/go/bin:$PATH
+PATH=$GITHUB_WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$GITHUB_WORKSPACE/depot_tools/:/usr/local/go/bin:$PATH
 
 cd chromium/src
 
 echo -e ${RED} -------- gn gen ${NC}
-gn gen --args="$(cat ../../bromite/build/GN_ARGS) target_cpu=\"x86\" use_goma=true goma_dir=\"../../goma\" " out/x86
+gn gen --args="$(cat ../../bromite/build/GN_ARGS) target_cpu=\"x86\" use_goma=true goma_dir=\"$GITHUB_WORKSPACE/goma\" " out/x86
 
 echo -e ${RED} -------- checking prebuild ${NC}
 rm out.$GITHUB_SHA.tar.gz
