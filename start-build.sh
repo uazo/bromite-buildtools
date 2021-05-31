@@ -16,6 +16,18 @@ bash ./bromite-buildtools/start-goma-server.sh
 bash ./bromite-buildtools/setup-goma-client.sh
 bash ./bromite-buildtools/start_proxy.sh
 
+export GOMA_SERVER_HOST=127.0.0.1
+export GOMA_SERVER_PORT=5050
+export GOMA_USE_SSL=false
+export GOMA_HTTP_AUTHORIZATION_FILE=$GITHUB_WORKSPACE/.debug_auth_file
+export GOMA_HERMETIC=error
+export GOMA_USE_LOCAL=false
+export GOMA_FALLBACK=true
+export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
+
+$GITHUB_WORKSPACE/goma/goma_ctl.py ensure_stop
+$GITHUB_WORKSPACE/goma/goma_ctl.py ensure_start
+
 cd chromium/src
 
 echo -e ${RED} -------- gn gen ${NC}
