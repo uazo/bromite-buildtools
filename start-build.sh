@@ -12,6 +12,10 @@ NC='\033[0m' # No Color
 echo -e ${RED} -------- set envs ${NC}
 PATH=$GITHUB_WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$GITHUB_WORKSPACE/depot_tools/:/usr/local/go/bin:$PATH
 
+bash ./bromite-buildtools/start-goma-server.sh
+bash ./bromite-buildtools/setup-goma-client.sh
+bash ./bromite-buildtools/start_proxy.sh
+
 cd chromium/src
 
 echo -e ${RED} -------- gn gen ${NC}
