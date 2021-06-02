@@ -28,6 +28,11 @@ export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
 $GITHUB_WORKSPACE/goma/goma_ctl.py ensure_stop
 $GITHUB_WORKSPACE/goma/goma_ctl.py ensure_start
 
+# download mtool
+echo -e ${RED} -------- download mtool ${NC}
+git clone https://github.com/bromite/mtool
+sudo apt-get install parallel
+
 cd chromium/src
 
 echo -e ${RED} -------- gn gen ${NC}
@@ -42,13 +47,18 @@ if [[ OK -eq 1 ]]; then
 
     tar xf out.x86.$GITHUB_SHA.tar.gz
 
-    # TODO add mtool restore
+    test -f out/x86/.mtool && cp out/x86/.mtool .mtool && $GITHUB_WORKSPACE/mtool/chromium/mtime.sh --restore
+fi
+
+if [[ -z "${GOMAJOBS}" ]]; then
+    GOMAJOBS=40
 fi
 
 echo -e ${RED} -------- start build ${NC}
-autoninja -j 40 -C out/x86 chrome_public_apk
+autoninja -j $GOMAJOBS -C out/x86 chrome_public_apk
 
-# TODO add mtool backup
+$GITHUB_WORKSPACE/mtool/chromium/mtime.sh --backup
+cp .mtool out/x86/
 
 echo -e ${RED} -------- tar out ${NC}
 tar -czf out.x86.$GITHUB_SHA.tar.gz ./out

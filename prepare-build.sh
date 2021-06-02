@@ -6,6 +6,8 @@ NC='\033[0m' # No Color
 #sudo apt-get install python
 #sudo apt-get install wiggle
 sudo apt-get install lftp
+
+# removes these because they are in error with those installed by install-build-deps-android.sh
 sudo apt-get remove --auto-remove php7.4 php7.4-cgi libapache2-mod-php7.4 php7.4-common
 sudo apt autoremove
 
