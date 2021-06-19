@@ -1,0 +1,17 @@
+version_id:"1",
+configs: [{
+        target: {
+                addr:"localhost",
+        },
+        build_info: {
+                creator:"uazo",
+                hostname:"localhost",
+                toolchain:"xx"
+        },
+        remoteexec_platform: {
+                rbe_instance_basename: "default_instance",
+                has_nsjail: false
+        },
+        dimensions: "os:linux"
+}]
+

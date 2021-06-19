@@ -1,0 +1,60 @@
+diff --git a/gclient_scm.py b/gclient_scm.py
+--- a/gclient_scm.py
++++ b/gclient_scm.py
+@@ -1012,28 +1012,35 @@ class GitWrapper(SCMWrapper):
+     gclient_utils.safe_makedirs(parent_dir)
+
+     template_dir = None
++    use_fetch = False
++
++    tmp_dir = tempfile.mkdtemp(
++        prefix='_gclient_%s_' % os.path.basename(self.checkout_path),
++        dir=parent_dir)
++
+     if hasattr(options, 'no_history') and options.no_history:
+       if gclient_utils.IsGitSha(revision):
+         # In the case of a subproject, the pinned sha is not necessarily the
+         # head of the remote branch (so we can't just use --depth=N). Instead,
+         # we tell git to fetch all the remote objects from SHA..HEAD by means of
+         # a template git dir which has a 'shallow' file pointing to the sha.
+-        template_dir = tempfile.mkdtemp(
+-            prefix='_gclient_gittmp_%s' % os.path.basename(self.checkout_path),
+-            dir=parent_dir)
+-        self._Run(['init', '--bare', template_dir], options, cwd=self._root_dir)
+-        with open(os.path.join(template_dir, 'shallow'), 'w') as template_file:
+-          template_file.write(revision)
+-        clone_cmd.append('--template=' + template_dir)
++        self._Run(['init', tmp_dir], options, cwd=self._root_dir)
++
++        self._Run(['-C', tmp_dir, 'remote', 'add', 'origin', url], options, cwd=self._root_dir)
++
++        clone_cmd = cfg + ['-C', tmp_dir, 'fetch', '--progress']
++        clone_cmd.append('--depth=1')
++        clone_cmd.append(url)
++        clone_cmd.append(revision)
++        use_fetch = True
+       else:
+         # Otherwise, we're just interested in the HEAD. Just use --depth.
+         clone_cmd.append('--depth=1')
+
+-    tmp_dir = tempfile.mkdtemp(
+-        prefix='_gclient_%s_' % os.path.basename(self.checkout_path),
+-        dir=parent_dir)
+     try:
+-      clone_cmd.append(tmp_dir)
++      if use_fetch == False:
++        clone_cmd.append(tmp_dir)
++
+       if self.print_outbuf:
+         print_stdout = True
+         filter_fn = None
+@@ -1328,6 +1335,9 @@ class GitWrapper(SCMWrapper):
+     if refspec:
+       fetch_cmd.append(refspec)
+
++    if hasattr(options, 'no_history') and options.no_history:
++      fetch_cmd.append('--depth=1')
++
+     if prune:
+       fetch_cmd.append('--prune')
+     if options.verbose:
