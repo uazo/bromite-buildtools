@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM localhost:5000/uazo/build-deps:$VERSION
+FROM uazo/build-deps:$VERSION
 ARG VERSION
 ENV VERSION=$VERSION
 
