@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  buildboxcasd:
+    image: uazo/buildboxcasd
+    networks:
+      - bridge-ext
+    env_file:
+      - buildstack.env
+    volumes:
+      - /tmp/cache:/wrk-cache:rw
+    deploy:
+      mode: global
+      placement:
+        max_replicas_per_node: 1
+
+  buildboxrunner-8:
+    image: uazo/buildboxrunner
+    networks:
+      - bridge-int
+    depends_on:
+      - buildboxcasd
+    volumes:
+      - /tmp/cache:/wrk-cache:rw
+    deploy:
+      replicas: 20
+      placement:
+        max_replicas_per_node: 8
+        constraints: [node.labels.gomarunners == 8]
+
+  buildboxrunner-4:
+    image: uazo/buildboxrunner
+    networks:
+      - bridge-int
+    depends_on:
+      - buildboxcasd
+    volumes:
+      - /tmp/cache:/wrk-cache:rw
+    deploy:
+      replicas: 20
+      placement:
+        max_replicas_per_node: 4
+        constraints: [node.labels.gomarunners == 4]
+
+networks:
+  bridge-int:
+    driver: overlay
+    driver_opts:
+      com.docker.network.bridge.name: build-bridge-int
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+      com.docker.network.bridge.default_bridge: "false"
+    name: build-bridge-int
+    internal: true
+
+  bridge-ext:
+    driver: overlay
+    driver_opts:
+      com.docker.network.bridge.name: build-bridge-ext
+      com.docker.network.bridge.enable_icc: "false"
+    name: build-bridge-ext
