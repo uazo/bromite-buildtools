@@ -1,0 +1,23 @@
+
+declare_args() {
+  _is_debug_build = ""
+  target_cpu = "x86"
+}
+
+_is_debug_build = getenv("TARGET_ISDEBUG")
+
+not_needed(["_target_build", "_is_debug_build"])
+
+if(getenv("TARGET_CPU") != "") {
+  target_cpu = getenv("TARGET_CPU")
+}
+print("Target " + target_cpu)
+
+if(!(_is_debug_build == "")) {
+  print("Debug build on")
+  is_debug = true
+  is_official_build = false
+  dcheck_always_on = true
+  symbol_level = 1
+  strip_debug_info = false
+}

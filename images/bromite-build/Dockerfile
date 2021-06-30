@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM localhost:5000/uazo/bromite:$VERSION
+FROM uazo/bromite:$VERSION
 ARG VERSION
 ENV VERSION=$VERSION
 
@@ -10,6 +10,7 @@ COPY pre-start.sh .
 COPY start-build.sh .
 COPY goma_auth.py .
 COPY casupload .
+COPY build_args.gni .
 
 RUN sudo chmod +x ./start-build.sh \
     && \

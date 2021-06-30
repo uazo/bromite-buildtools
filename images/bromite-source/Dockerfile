@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM localhost:5000/uazo/chromium:$VERSION
+FROM uazo/chromium:$VERSION
 ARG VERSION
 ENV VERSION=$VERSION
 

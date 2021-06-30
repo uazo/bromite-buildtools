@@ -6,7 +6,7 @@ COPY config-file .
 
 RUN apt-get update \
     && \
-    apt-get -y install sudo wget git \
+    apt-get -y install sudo wget git socat \
     && \
     sudo chmod +x ./install-goma-server.sh \
     && \

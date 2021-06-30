@@ -12,8 +12,3 @@ cipd install infra/goma/client/linux-amd64 -root $WORKSPACE/goma
 
 echo "nomatter" >$WORKSPACE/.debug_auth_file
 sudo cp $WORKSPACE/goma_auth.py $WORKSPACE/goma/
-
-cd chromium/src
-
-echo -e ${RED} -------- gn gen ${NC}
-gn gen --args="$(cat ../../bromite/build/GN_ARGS) target_cpu=\"x86\" use_goma=true goma_dir=\"$WORKSPACE/goma\" " out/bromite

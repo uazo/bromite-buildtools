@@ -21,12 +21,23 @@ $WORKSPACE/goma/goma_ctl.py ensure_start
 
 cd chromium/src
 
+OUT_PRESENT=0
+test -d out/bromite && OUT_PRESENT=1
+if [[ OUT_PRESENT -eq 0 ]]; then
+   echo -e ${RED} -------- gn gen ${NC}
+   gn gen --args="import(\"../../bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
+
+   echo -e ${RED} -------- gn args ${NC}
+   gn args out/bromite/ --list --short
+   gn args out/bromite/ --list >$WORKSPACE/artifacs/gn_list
+fi
+
 if [[ -z "${GOMAJOBS}" ]]; then
     GOMAJOBS=40
 fi
 
 echo -e ${RED} -------- pre-cache toolchain ${NC}
-../../casupload --cas-server=http://$REMOTEEXEC_ADDR --instance=default_instance \
+sudo ../../casupload --cas-server=unix:/tmp/proxy/bots.sock --instance=default_instance \
         third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
         third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/include \
         third_party/llvm-build/Release+Asserts/lib \
@@ -37,6 +48,16 @@ echo -e ${RED} -------- pre-cache toolchain ${NC}
 
 echo -e ${RED} -------- start build ${NC}
 autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
+echo -e ${RED} -------- end build ${NC}
 
-bash
+wget http://127.0.0.1:8088/logz?subproc-INFO -o out/artifacs/goma-client.log
+cp out/bromite/apks/* $WORKSPACE/artifacs/
+
+echo -e ${RED} -------- generating breakpad symbols ${NC}
+autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
+components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
+   --symbols-dir=$WORKSPACE/artifacs/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so --clear --verbose
+cp out/bromite/lib.unstripped/libchrome.so $WORKSPACE/artifacs/symbols/libchrome.lib.so
+cp out/bromite/minidump_stackwalk $WORKSPACE/artifacs/symbols
+cp out/bromite/dump_syms $WORKSPACE/artifacs/symbols
 

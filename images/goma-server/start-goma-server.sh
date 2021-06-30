@@ -7,6 +7,8 @@ NC='\033[0m' # No Color
 
 echo -e ${RED} -------- start goma-server ${NC}
 
+socat UNIX-LISTEN:/tmp/proxy/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &
+
 cd ./goma-server/
 /usr/local/go/bin/go run ./cmd/remoteexec_proxy/main.go \
    --port 5050 \
