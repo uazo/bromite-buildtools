@@ -40,6 +40,7 @@ jobs:
 
   generate_chromium_src:
     name: Generate Chromium Sources
+    needs: generate_build_deps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
