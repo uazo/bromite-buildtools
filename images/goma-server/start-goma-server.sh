@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 
 echo -e ${RED} -------- start goma-server ${NC}
 
+test -f /tmp/proxy/bots.sock && sudo rm /tmp/proxy/bots.sock
 socat UNIX-LISTEN:/tmp/proxy/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &
 
 cd ./goma-server/
