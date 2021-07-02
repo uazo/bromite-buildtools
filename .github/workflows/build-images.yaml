@@ -1,0 +1,60 @@
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+ 
+on:
+  push:
+    tags:
+      - 'v*'
+      
+name: Builds and pushes tagged image to DockerHub
+jobs:
+  generate_build_deps:
+    name: Generate Build Deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Find VERSION
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/build-deps
+          push: true
+          build-args: VERSION=$VERSION
+          tags: |
+            uazo/build-deps:${{ env.VERSION }}
+
+  generate_chromium_src:
+    name: Generate Chromium Sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Find VERSION
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/chr-source
+          push: true
+          build-args: VERSION=$VERSION
+          tags: |
+            uazo/chromium:${{ env.VERSION }}
