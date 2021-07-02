@@ -5,7 +5,7 @@ NC='\033[0m' # No Color
 
 WORKSPACE=/home/lg/working_dir
 
-PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$PATH
+PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
 
 export GOMA_SERVER_HOST=127.0.0.1
 export GOMA_SERVER_PORT=5050
@@ -24,12 +24,24 @@ cd chromium/src
 OUT_PRESENT=0
 test -d out/bromite && OUT_PRESENT=1
 if [[ OUT_PRESENT -eq 0 ]]; then
+
+   echo -e ${RED} -------- sync out folder ${NC}
+   test -d ../../artifacs/out/bromite && \
+      mkdir -p out/bromite && \
+      cp -arp ../../artifacs/out/bromite/* out/bromite/
+
    echo -e ${RED} -------- gn gen ${NC}
    gn gen --args="import(\"../../bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
 
    echo -e ${RED} -------- gn args ${NC}
    gn args out/bromite/ --list --short
    gn args out/bromite/ --list >$WORKSPACE/artifacs/gn_list
+
+   echo -e ${RED} -------- apply .mtool ${NC}
+   test -f out/bromite/.mtool && \
+      cp out/bromite/.mtool .mtool && \
+      $WORKSPACE/mtool/chromium/mtime.sh --restore
+
 fi
 
 if [[ -z "${GOMAJOBS}" ]]; then
@@ -50,7 +62,7 @@ echo -e ${RED} -------- start build ${NC}
 autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
 echo -e ${RED} -------- end build ${NC}
 
-wget http://127.0.0.1:8088/logz?subproc-INFO -o out/artifacs/goma-client.log
+wget http://127.0.0.1:8088/logz?INFO -O ../../artifacs/goma-client.log
 cp out/bromite/apks/* $WORKSPACE/artifacs/
 
 echo -e ${RED} -------- generating breakpad symbols ${NC}
@@ -61,3 +73,10 @@ cp out/bromite/lib.unstripped/libchrome.so $WORKSPACE/artifacs/symbols/libchrome
 cp out/bromite/minidump_stackwalk $WORKSPACE/artifacs/symbols
 cp out/bromite/dump_syms $WORKSPACE/artifacs/symbols
 
+echo -e ${RED} -------- sync out folder ${NC}
+$WORKSPACE/mtool/chromium/mtime.sh --backup
+mv .mtool out/bromite/
+cp -arp out/bromite $WORKSPACE/artifacs/out
+
+echo -e ${RED} -------- stop goma ${NC}
+$WORKSPACE/goma/goma_ctl.py ensure_stop
