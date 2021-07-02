@@ -49,6 +49,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Reclaiming disk space on / by removing dotnet/android/ghc
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo apt-get remove google-cloud-sdk azure-cli ghc-9.0.1 ghc-8.10.4 hhvm google-chrome-stable firefox mysql-server-core-8.0 moby-engine mono-devel mongodb-org-server podman moby-cli moby-containerd mongodb-org-mongos powershell dotnet-runtime-3.1 dotnet-runtime-5.0 dotnet-sdk-3.1 dotnet-sdk-5.0
+          sudo apt-get autoremove
       - name: Find VERSION
         run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
       - name: Docker Build and Push
