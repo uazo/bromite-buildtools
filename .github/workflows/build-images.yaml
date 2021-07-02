@@ -34,7 +34,7 @@ jobs:
         with:
           context: ./images/build-deps
           push: true
-          build-args: VERSION=$VERSION
+          build-args: VERSION=${{ env.VERSION }}
           tags: |
             uazo/build-deps:${{ env.VERSION }}
 
@@ -55,6 +55,6 @@ jobs:
         with:
           context: ./images/chr-source
           push: true
-          build-args: VERSION=$VERSION
+          build-args: VERSION=${{ env.VERSION }}
           tags: |
             uazo/chromium:${{ env.VERSION }}
