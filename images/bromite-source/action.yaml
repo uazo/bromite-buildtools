@@ -1,5 +1,5 @@
 name: 'Prepare Bromite Source Image'
-description: 'Check and build build bromite source image by version'
+description: 'Check and build Bromite sources image by version'
 
 inputs:
   version:
