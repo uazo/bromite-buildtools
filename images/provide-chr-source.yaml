@@ -1,0 +1,29 @@
+name: 'Prepare Chromium Sources Image'
+description: 'Check and build chromium source image by version'
+
+inputs:
+  version:
+    description: 'Chromium Version (example 91.0.4472.146)'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checking for image "${{ inputs.version }}"
+      shell: bash
+      run: |
+        VERSION="${{ inputs.version }}"
+        IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
+        if [[ $IS_PRESENT == "1" ]; then
+          echo "Image not found"
+          
+          mkdir chr-source
+          pushd chr-sourced/
+          
+          git clone https://github.com/uazo/bromite-buildtools
+          cd bromite-buildtools/images/chr-source/
+          docker build -t uazo/chromium:$VERSION --progress plain --build-arg VERSION=$VERSION .
+
+          popd
+          rm -rf chr-source
+        fi
