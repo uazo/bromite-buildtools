@@ -1,0 +1,37 @@
+name: 'Prepare Bromite Source Image'
+description: 'Check and build build bromite source image by version'
+
+inputs:
+  version:
+    description: 'Chromium Version (example 91.0.4472.146)'
+    required: true
+
+  sha:
+    description: 'Bromite sha ref'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checking image for "${{ inputs.sha }}"
+      shell: bash
+      run: |
+        BROMITE_SHA="${{ inputs.sha }}"
+        VERSION="${{ inputs.version }}"
+        
+        IS_PRESENT=$(docker manifest inspect uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+        if [ $IS_PRESENT -ne "0" ]; then
+          echo "Image not found"
+          
+          mkdir bromite-source
+          pushd bromite-source/
+          
+          cd bromite-buildtools/images/bromite-source/
+          docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
+            --build-arg BROMITE_SHA=$BROMITE_SHA \
+            --build-arg VERSION=$VERSION \
+            .
+          
+          popd
+          rm -rf bromite-source
+        fi
