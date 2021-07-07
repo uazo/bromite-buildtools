@@ -1,0 +1,29 @@
+name: 'Prepare Build Deps Image'
+description: 'Check and build build deps image by version'
+
+inputs:
+  version:
+    description: 'Chromium Version (example 91.0.4472.146)'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checking image for "${{ inputs.version }}"
+      shell: bash
+      run: |
+        VERSION="${{ inputs.version }}"
+        IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
+        if [ $IS_PRESENT -ne "0" ]; then
+          echo "Image not found"
+          
+          mkdir build-repo
+          pushd build-repo/
+          
+          git clone https://github.com/uazo/bromite-buildtools
+          cd bromite-buildtools/images/build-deps/
+          docker build -t uazo/build-deps:$VERSION --progress plain --build-arg .
+
+          popd
+          rm -rf build-repo
+        fi
