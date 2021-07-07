@@ -17,6 +17,5 @@ RUN sudo chmod +x ./apply-bromite-patches.sh \
     git remote add origin https://github.com/uazo/bromite && \
     git fetch origin $BROMITE_SHA && \
     git reset --hard FETCH_HEAD && \
-    && \
     ./apply-bromite-patches.sh
 
