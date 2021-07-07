@@ -9,7 +9,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checking for image "${{ inputs.version }}"
+    - name: Check build deps image
+      uses: uazo/bromite-buildtools/images/build-deps@master
+      with:
+        version: "${{ inputs.version }}"
+
+    - name: Checking image for "${{ inputs.version }}"
       shell: bash
       run: |
         VERSION="${{ inputs.version }}"
