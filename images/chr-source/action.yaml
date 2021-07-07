@@ -14,7 +14,7 @@ runs:
       run: |
         VERSION="${{ inputs.version }}"
         IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
-        if [[ $IS_PRESENT == "1" ]; then
+        if [ $IS_PRESENT -ne "0" ]; then
           echo "Image not found"
           
           mkdir chr-source
