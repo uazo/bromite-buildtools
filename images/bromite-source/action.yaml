@@ -25,6 +25,8 @@ runs:
           
           mkdir bromite-source
           pushd bromite-source/
+
+          git clone https://github.com/uazo/bromite-buildtools
           
           cd bromite-buildtools/images/bromite-source/
           docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
