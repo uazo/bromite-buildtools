@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-apt install sed
+sudo apt install sed
 
 cd chromium/src
 
