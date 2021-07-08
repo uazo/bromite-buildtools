@@ -30,6 +30,7 @@ runs:
           
           cd bromite-buildtools/images/bromite-source/
           sudo docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
+            --no-cache \
             --build-arg BROMITE_SHA=$BROMITE_SHA \
             --build-arg VERSION=$VERSION \
             .
