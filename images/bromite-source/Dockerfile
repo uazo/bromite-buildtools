@@ -13,6 +13,7 @@ RUN mkdir bromite && \
     git remote add origin https://github.com/uazo/bromite && \
     git fetch origin $BROMITE_SHA && \
     git reset --hard FETCH_HEAD && \
-    cd .. && \
-    ./apply-bromite-patches.sh
+    cd ..
+
+RUN ./apply-bromite-patches.sh
 
