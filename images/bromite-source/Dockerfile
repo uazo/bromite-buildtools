@@ -7,11 +7,7 @@ ENV BROMITE_SHA=$BROMITE_SHA
 
 USER lg
 
-COPY apply-bromite-patches.sh .
-
-RUN sudo chmod +x ./apply-bromite-patches.sh \
-    && \
-    mkdir bromite && \
+RUN mkdir bromite && \
     cd bromite && \
     git init && \
     git remote add origin https://github.com/uazo/bromite && \
