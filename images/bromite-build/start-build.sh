@@ -7,7 +7,7 @@ WORKSPACE=/home/lg/working_dir
 
 PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
 
-export GOMA_SERVER_HOST=127.0.0.1
+export GOMA_SERVER_HOST=$SERVER_HOST_GOMA
 export GOMA_SERVER_PORT=5050
 export GOMA_USE_SSL=false
 export GOMA_HTTP_AUTHORIZATION_FILE=$WORKSPACE/.debug_auth_file
