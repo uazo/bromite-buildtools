@@ -1,0 +1,32 @@
+name: 'Prepare Bromite Builder Image'
+description: 'Check and build Bromite builder image by sha'
+
+inputs:
+  sha:
+    description: 'Bromite sha ref'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checking image for "${{ inputs.sha }}"
+      shell: bash
+      run: |
+        BROMITE_SHA="${{ inputs.sha }}"
+        
+        IS_PRESENT=$(docker manifest inspect uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
+        if [ $IS_PRESENT -ne "0" ]; then
+          echo "Image not found"
+          
+          mkdir bromite-source
+          pushd bromite-source/
+          git clone https://github.com/uazo/bromite-buildtools
+          
+          cd bromite-buildtools/images/bromite-build/
+          DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$BROMITE_SHA --progress plain \
+            --no-cache \
+            --build-arg BROMITE_SHA=$BROMITE_SHA \
+            .
+          
+          popd
+        fi
