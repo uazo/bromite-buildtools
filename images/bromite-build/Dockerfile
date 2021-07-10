@@ -1,8 +1,6 @@
-ARG VERSION
+ARG BROMITE_SHA
 
-FROM uazo/bromite:$VERSION
-ARG VERSION
-ENV VERSION=$VERSION
+FROM uazo/bromite:$BROMITE_SHA
 
 USER lg
 
@@ -19,6 +17,4 @@ RUN sudo chmod +x ./start-build.sh \
     sudo chmod 775 ./goma_auth.py \
     && \
     ./pre-start.sh
-
-CMD ./start-build.sh
 
