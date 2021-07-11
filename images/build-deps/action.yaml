@@ -13,17 +13,20 @@ runs:
       shell: bash
       run: |
         VERSION="${{ inputs.version }}"
-        IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
+        IS_PRESENT=$(docker inspect --type=image uazo/build-deps:$VERSION > /dev/null ; echo $?)
         if [ $IS_PRESENT -ne "0" ]; then
-          echo "Image not found"
+          IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            echo "Image not found"
           
-          mkdir build-repo
-          pushd build-repo/
+            mkdir build-repo
+            pushd build-repo/
           
-          git clone https://github.com/uazo/bromite-buildtools
-          cd bromite-buildtools/images/build-deps/
-          docker build -t uazo/build-deps:$VERSION --progress plain --build-arg .
+            git clone https://github.com/uazo/bromite-buildtools
+            cd bromite-buildtools/images/build-deps/
+            docker build -t uazo/build-deps:$VERSION --progress plain --build-arg .
 
-          popd
-          rm -rf build-repo
+            popd
+            rm -rf build-repo
+          fi
         fi
