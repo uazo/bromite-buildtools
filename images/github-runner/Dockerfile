@@ -1,5 +1,5 @@
 #FROM nestybox/ubuntu-focal-systemd-docker
-FROM ubuntu:focal-20200423
+FROM ubuntu:20.04
 
 RUN set -xe && \
     echo '#!/bin/sh' > /usr/sbin/policy-rc.d && \
