@@ -1,0 +1,94 @@
+name: Build x86
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+      
+on:
+  workflow_dispatch:
+
+jobs:
+  check_images:
+    runs-on: self-hosted
+      
+    steps:
+      - name: Get current chromium version
+        shell: bash
+        run: |
+          mkdir bromite
+          cd bromite
+          git remote add origin https://github.com/uazo/bromite && \
+          git fetch origin 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 && \
+          git reset --hard FETCH_HEAD && \          
+          cd ..
+          
+          export VERSION=$( cat ./bromite/build/RELEASE )
+          echo Current version is $VERSION
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
+      - name: Check build deps image
+        uses: uazo/bromite-buildtools/images/build-deps@master
+        with:
+          version: ${{ env.VERSION }}
+        
+      - name: Check chromium image
+        uses: uazo/bromite-buildtools/images/chr-source@master
+        with:
+          version: ${{ env.VERSION }}
+
+      - name: Check bromite image
+        uses: uazo/bromite-buildtools/images/bromite-source@master
+        with:
+          version: ${{ env.VERSION }}
+          sha: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+
+      - name: Check bromite builder
+        uses: uazo/bromite-buildtools/images/bromite-build@master
+        with:
+          sha: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+          
+  build:
+    runs-on: self-hosted
+    needs: check_images
+    if: success()
+
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5    
+      gomaserver:
+        image: uazo/goma-server
+        #ports: 
+        #  - 5050:5050
+        volumes: 
+          - /tmp/proxy:/tmp/proxy
+        env:
+          REDISHOST: redis
+          REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
+          
+    container:
+      image: uazo/bromite-build:2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+      env:
+        SERVER_HOST_GOMA: gomaserver
+      volumes:
+        - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
+        - /tmp/proxy:/tmp/proxy
+
+    steps:
+      - name: Build Bromite
+        shell: bash
+        run: |
+          cd /home/lg/working_dir/
+          export WORKSPACE=/home/lg/working_dir
+          ./start-build.sh
