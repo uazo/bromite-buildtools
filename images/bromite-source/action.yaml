@@ -19,21 +19,23 @@ runs:
         BROMITE_SHA="${{ inputs.sha }}"
         VERSION="${{ inputs.version }}"
         
-        IS_PRESENT=$(docker manifest inspect uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+        IS_PRESENT=$(docker inspect --type=image uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
         if [ $IS_PRESENT -ne "0" ]; then
-          echo "Image not found"
+          IS_PRESENT=$(docker manifest inspect uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+            echo "Image not found"
           
-          mkdir bromite-source
-          pushd bromite-source/
+            mkdir bromite-source
+            pushd bromite-source/
 
-          git clone https://github.com/uazo/bromite-buildtools
+            git clone https://github.com/uazo/bromite-buildtools
           
-          cd bromite-buildtools/images/bromite-source/
-          DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
-            --no-cache \
-            --build-arg BROMITE_SHA=$BROMITE_SHA \
-            --build-arg VERSION=$VERSION \
-            .
+            cd bromite-buildtools/images/bromite-source/
+            DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
+              --build-arg BROMITE_SHA=$BROMITE_SHA \
+              --build-arg VERSION=$VERSION \
+              .
           
-          popd
+            popd
+          fi
         fi
