@@ -24,6 +24,7 @@ jobs:
         run: |
           mkdir bromite
           cd bromite
+          git init
           git remote add origin https://github.com/uazo/bromite && \
           git fetch origin 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 && \
           git reset --hard FETCH_HEAD && \          
