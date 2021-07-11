@@ -61,6 +61,7 @@ RUN apt-get update \
     wget \
     zip \
     git \
+    pigz \
     && rm -rf /var/lib/apt/list/*
 
 # Add and config runner user as sudo
