@@ -43,6 +43,8 @@ jobs:
           echo Current version is $VERSION
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           
+          cd bromite-buildtools
+          
       - name: Checking build-deps for ${{ env.VERSION }}
         shell: bash
         run: |
