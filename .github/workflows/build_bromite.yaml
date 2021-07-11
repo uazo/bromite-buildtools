@@ -14,10 +14,12 @@ permissions:
 on:
   workflow_dispatch:
 
+env:
+  BROMITE_SHA: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8
+
 jobs:
   check_images:
     runs-on: self-hosted
-      
     steps:
       - name: Get current chromium version
         shell: bash
@@ -26,34 +28,68 @@ jobs:
           cd bromite
           git init
           git remote add origin https://github.com/uazo/bromite
-          git fetch origin 2e1849a8e357e0ebbcd84cb88a8556be738c08a8
+          git fetch origin $BROMITE_SHA
           git reset --hard FETCH_HEAD
           cd ..
           
           export VERSION=$( cat ./bromite/build/RELEASE )
+          rm -rf bromite
+          
           echo Current version is $VERSION
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           
-      - name: Check build deps image
-        uses: uazo/bromite-buildtools/images/build-deps@master
-        with:
-          version: ${{ env.VERSION }}
+      - name: Checking build-deps for ${{ env.VERSION }}
+        shell: bash
+        run: |
+          VERSION="${{ inputs.version }}"
+          IS_PRESENT=$(docker inspect --type=image uazo/build-deps:$VERSION > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION --progress plain bromite-buildtools/images/build-deps/.
+            fi
+          fi
         
-      - name: Check chromium image
-        uses: uazo/bromite-buildtools/images/chr-source@master
-        with:
-          version: ${{ env.VERSION }}
+      - name: Checking chromium for ${{ env.VERSION }}
+        shell: bash
+        run: |
+          VERSION="${{ inputs.version }}"
+          IS_PRESENT=$(docker inspect --type=image uazo/chromium:$VERSION > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/chromium:$VERSION --progress plain --build-arg VERSION=$VERSION bromite-buildtools/images/chr-source/.
+            fi
+          fi
 
-      - name: Check bromite image
-        uses: uazo/bromite-buildtools/images/bromite-source@master
-        with:
-          version: ${{ env.VERSION }}
-          sha: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+      - name: Checking bromite for ${{ env.BROMITE_SHA }}
+        shell: bash
+        run: |
+          IS_PRESENT=$(docker inspect --type=image uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
+                --build-arg BROMITE_SHA=$BROMITE_SHA \
+                --build-arg VERSION=$VERSION \
+                bromite-buildtools/images/bromite-source/.
+            fi
+          fi
+          
+      - name: Checking bromite-build for ${{ env.BROMITE_SHA }}
+        shell: bash
+        run: |
+          BROMITE_SHA="${{ inputs.sha }}"
 
-      - name: Check bromite builder
-        uses: uazo/bromite-buildtools/images/bromite-build@master
-        with:
-          sha: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+          IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$BROMITE_SHA --progress plain \
+                --build-arg BROMITE_SHA=$BROMITE_SHA \
+                bromite-buildtools/images/bromite-build/.
+            fi
+          fi
           
   build:
     runs-on: self-hosted
