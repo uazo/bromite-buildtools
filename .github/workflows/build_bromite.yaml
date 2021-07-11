@@ -24,6 +24,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
+          path: bromite-buildtools
           fetch-depth: 1
           
       - name: Get current chromium version
