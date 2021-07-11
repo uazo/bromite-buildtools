@@ -111,7 +111,7 @@ jobs:
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
           
     container:
-      image: uazo/bromite-build:${{ env.BROMITE_SHA }}
+      image: uazo/bromite-build:2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
       volumes:
