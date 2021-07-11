@@ -41,7 +41,6 @@ jobs:
       - name: Checking build-deps for ${{ env.VERSION }}
         shell: bash
         run: |
-          VERSION="${{ inputs.version }}"
           IS_PRESENT=$(docker inspect --type=image uazo/build-deps:$VERSION > /dev/null ; echo $?)
           if [ $IS_PRESENT -ne "0" ]; then
             IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
@@ -53,7 +52,6 @@ jobs:
       - name: Checking chromium for ${{ env.VERSION }}
         shell: bash
         run: |
-          VERSION="${{ inputs.version }}"
           IS_PRESENT=$(docker inspect --type=image uazo/chromium:$VERSION > /dev/null ; echo $?)
           if [ $IS_PRESENT -ne "0" ]; then
             IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
@@ -79,8 +77,6 @@ jobs:
       - name: Checking bromite-build for ${{ env.BROMITE_SHA }}
         shell: bash
         run: |
-          BROMITE_SHA="${{ inputs.sha }}"
-
           IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
           if [ $IS_PRESENT -ne "0" ]; then
             IS_PRESENT=$(docker manifest inspect uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
@@ -115,7 +111,7 @@ jobs:
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
           
     container:
-      image: uazo/bromite-build:2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ github.sha }}
+      image: uazo/bromite-build:${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
       volumes:
