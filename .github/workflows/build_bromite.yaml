@@ -53,7 +53,10 @@ jobs:
           if [ $IS_PRESENT -ne "0" ]; then
             IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
             if [ $IS_PRESENT -ne "0" ]; then
-              DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION --progress plain bromite-buildtools/images/build-deps/.
+              DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION \
+                --progress plain \
+                --build-arg VERSION=$VERSION \
+                bromite-buildtools/images/build-deps/.
             fi
           fi
         
@@ -64,7 +67,10 @@ jobs:
           if [ $IS_PRESENT -ne "0" ]; then
             IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
             if [ $IS_PRESENT -ne "0" ]; then
-              DOCKER_BUILDKIT=1 docker build -t uazo/chromium:$VERSION --progress plain --build-arg VERSION=$VERSION bromite-buildtools/images/chr-source/.
+              DOCKER_BUILDKIT=1 docker build -t uazo/chromium:$VERSION \
+                --progress plain \
+                --build-arg VERSION=$VERSION \
+                bromite-buildtools/images/chr-source/.
             fi
           fi
 
