@@ -129,6 +129,7 @@ jobs:
       image: uazo/bromite-build:2e1849a8e357e0ebbcd84cb88a8556be738c08a8 #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
+        USELOCALIMAGE: true
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
