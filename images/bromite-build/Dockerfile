@@ -2,7 +2,7 @@ ARG BROMITE_SHA
 
 FROM uazo/bromite:$BROMITE_SHA
 
-#USER lg
+USER lg
 WORKDIR /home/lg/working_dir
 
 COPY pre-start.sh .
