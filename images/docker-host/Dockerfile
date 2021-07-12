@@ -18,6 +18,8 @@ RUN set -xe && \
 
 RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 
+CMD ["/bin/bash"]
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       systemd systemd-sysv libsystemd0 ca-certificates dbus \
@@ -52,4 +54,4 @@ RUN apt-get update \
     pigz \
     && rm -rf /var/lib/apt/list/*
 
-ENTRYPOINT ["tail"]
+ENTRYPOINT ["/sbin/init" "--log-level=err"]
