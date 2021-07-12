@@ -26,6 +26,7 @@ generate_token() {
 }
 
 remove_runner() {
+  sudo service docker stop
   ./config.sh remove --unattended --token "$(generate_token)"
 }
 
