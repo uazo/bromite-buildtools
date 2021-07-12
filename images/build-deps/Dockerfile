@@ -3,7 +3,7 @@ ARG VERSION
 
 RUN apt-get update &&\
     DEBIAN_FRONTEND=noninteractive \
-    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential gcc-4.8 g++-4.8
+    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential
 
 ENV user lg
 
@@ -31,7 +31,7 @@ RUN chmod +x ./install-build-deps.sh \
     chmod +x ./install-build-deps-android.sh \
     && ls -la \
     && \
-    sudo bash ./install-build-deps-android.sh --no-prompt
+    sudo bash ./install-build-deps-android.sh --no-prompt --lib32
 
 
    
