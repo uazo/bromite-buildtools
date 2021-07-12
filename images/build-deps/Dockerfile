@@ -7,12 +7,14 @@ RUN apt-get update &&\
 
 ENV user lg
 
-RUN useradd -m -d /home/${user} ${user} && \
-    chown -R ${user} /home/${user} && \
-    adduser ${user} sudo && \
-    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+#RUN useradd -m -d /home/${user} ${user} && \
+#    chown -R ${user} /home/${user} && \
+#    adduser ${user} sudo && \
+#    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+#USER ${user}
 
-USER ${user}
+RUN mkdir -p /home/${user}
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 WORKDIR /home/${user}
 
