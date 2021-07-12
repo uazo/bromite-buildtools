@@ -4,8 +4,8 @@ FROM uazo/build-deps:$VERSION
 ARG VERSION
 ENV VERSION=$VERSION
 
-USER lg
-WORKDIR working_dir
+#USER lg
+WORKDIR /home/lg/working_dir
 
 COPY prepare-build.sh .
 COPY depot_tools.diff .
