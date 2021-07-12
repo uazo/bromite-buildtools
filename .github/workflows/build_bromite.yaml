@@ -56,6 +56,7 @@ jobs:
               DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION \
                 --progress plain \
                 --build-arg VERSION=$VERSION \
+                --no-cache \
                 bromite-buildtools/images/build-deps/.
             fi
           fi
