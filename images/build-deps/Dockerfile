@@ -25,7 +25,7 @@ RUN wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/bui
     sed -i 's/snapcraft/wget/' install-build-deps.sh && \
     chmod +x ./install-build-deps.sh && \
     chmod +x ./install-build-deps-android.sh && \
-    sudo ./install-build-deps.sh --no-prompt --lib32 && \
+    sudo ./install-build-deps.sh --no-prompt --lib32 --no-chromeos-fonts && \
     sudo ./install-build-deps-android.sh --no-prompt
 
 
