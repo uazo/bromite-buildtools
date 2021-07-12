@@ -58,5 +58,5 @@ RUN apt-get update \
     pigz \
     && rm -rf /var/lib/apt/list/*
 
-ENTRYPOINT ["/sbin/init" "--log-level=err"]
+ENTRYPOINT ["/sbin/init", "--log-level=err"]
 CMD ["/bin/bash"]
