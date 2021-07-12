@@ -15,7 +15,5 @@ RUN sudo chmod +x ./start-build.sh \
     && \
     sudo chmod +x ./pre-start.sh \
     && \
-    sudo chmod 775 ./goma_auth.py \
-    && \
-    ./pre-start.sh
+    sudo chmod 775 ./goma_auth.py
 
