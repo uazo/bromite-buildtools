@@ -13,7 +13,7 @@ ENV user lg
 #    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 #USER ${user}
 
-RUN mkdir -p /home/${user}
+RUN mkdir -p /home/${user} && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 WORKDIR /home/${user}
