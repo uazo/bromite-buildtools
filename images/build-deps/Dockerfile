@@ -26,12 +26,10 @@ RUN wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/bui
     && \
     sed -i 's/snapcraft/wget/' install-build-deps.sh
 
-RUN chmod +x ./install-build-deps.sh \
-    && \
-    chmod +x ./install-build-deps-android.sh \
-    && ls -la \
-    && \
-    sudo bash ./install-build-deps-android.sh --no-prompt --lib32
+RUN chmod +x ./install-build-deps.sh && \
+    chmod +x ./install-build-deps-android.sh && \
+    sudo bash ./install-build-deps.sh --no-prompt --lib32 && \
+    sudo bash ./install-build-deps-android.sh --no-prompt
 
 
    
