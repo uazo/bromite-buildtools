@@ -98,6 +98,7 @@ jobs:
             if [ $IS_PRESENT -ne "0" ]; then
               DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$BROMITE_SHA --progress plain \
                 --build-arg BROMITE_SHA=$BROMITE_SHA \
+                --no-cache \
                 bromite-buildtools/images/bromite-build/.
             fi
           fi
