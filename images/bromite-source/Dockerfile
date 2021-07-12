@@ -5,7 +5,8 @@ FROM uazo/chromium:$VERSION
 ARG BROMITE_SHA
 ENV BROMITE_SHA=$BROMITE_SHA
 
-USER lg
+#USER lg
+WORKDIR /home/lg/working_dir
 
 COPY apply-bromite-patches.sh .
 
