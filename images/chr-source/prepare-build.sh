@@ -3,11 +3,6 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-sudo chown lg .
-sudo chmod -R 775 .
-
-mkdir aa
-
 echo -e ${RED} -------- chromium version is: $VERSION ${NC}
 
 echo -e ${RED} -------- cloning depot_tools ${NC}
