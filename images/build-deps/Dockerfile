@@ -3,7 +3,7 @@ ARG VERSION
 
 RUN apt-get update &&\
     DEBIAN_FRONTEND=noninteractive \
-    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata g++-multilib
+    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential gcc-4.8 g++-4.8
 
 ENV user lg
 
