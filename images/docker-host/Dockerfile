@@ -18,8 +18,6 @@ RUN set -xe && \
 
 RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 
-CMD ["/bin/bash"]
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       systemd systemd-sysv libsystemd0 ca-certificates dbus \
@@ -46,6 +44,12 @@ RUN apt-get update && \
            /usr/share/doc/* /usr/share/man/* /usr/share/local/* && \
     usermod -a -G docker admin
 
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        openssh-server && \
+    mkdir /home/admin/.ssh && \
+    chown admin:admin /home/admin/.ssh
+
 # Extra deps
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -55,3 +59,4 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/list/*
 
 ENTRYPOINT ["/sbin/init" "--log-level=err"]
+CMD ["/bin/bash"]
