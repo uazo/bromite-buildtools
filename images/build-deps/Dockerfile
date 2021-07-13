@@ -1,6 +1,8 @@
 FROM ubuntu:20.04
 ARG VERSION
 
+RUN dpkg --add-architecture i386
+
 RUN apt-get update &&\
     DEBIAN_FRONTEND=noninteractive \
     apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential
