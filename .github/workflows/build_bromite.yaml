@@ -138,6 +138,8 @@ jobs:
     steps:
       - name: Build Bromite
         shell: bash
+        env: 
+          GOMAJOBS: 60
         run: |
           cd /home/lg/working_dir/
           export WORKSPACE=/home/lg/working_dir
