@@ -31,7 +31,7 @@ if [[ OUT_PRESENT -eq 0 ]]; then
       cp -arp ../../artifacs/out/bromite/* out/bromite/
 
    echo -e ${RED} -------- gn gen ${NC}
-   gn gen --args="import(\"../../bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
+   gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
 
    echo -e ${RED} -------- gn args ${NC}
    gn args out/bromite/ --list --short
