@@ -1,6 +1,8 @@
 #FROM nestybox/ubuntu-focal-systemd-docker
 FROM ubuntu:20.04
 
+RUN dpkg --add-architecture i386
+
 RUN set -xe && \
     echo '#!/bin/sh' > /usr/sbin/policy-rc.d && \
     echo 'exit 101' >> /usr/sbin/policy-rc.d && \
