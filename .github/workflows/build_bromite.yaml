@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 env:
-  BROMITE_SHA: 2e1849a8e357e0ebbcd84cb88a8556be738c08a8
+  BROMITE_SHA: aa131bcbb6021753c716c5700f3311858f7dc6cb
 
 jobs:
   check_images:
