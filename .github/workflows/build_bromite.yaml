@@ -16,6 +16,7 @@ on:
 
 env:
   BROMITE_SHA: aa131bcbb6021753c716c5700f3311858f7dc6cb
+  REMOVEDOCKERSUPPORT: true
 
 jobs:
   check_images:
@@ -115,7 +116,9 @@ jobs:
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5    
+          --health-retries 5
+        env:
+          REMOVEDOCKERSUPPORT: true
       gomaserver:
         image: uazo/goma-server
         #ports: 
@@ -125,12 +128,14 @@ jobs:
         env:
           REDISHOST: redis
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
+          REMOVEDOCKERSUPPORT: true
           
     container:
       image: uazo/bromite-build:aa131bcbb6021753c716c5700f3311858f7dc6cb #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
         USELOCALIMAGE: true
+        REMOVEDOCKERSUPPORT: true
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
