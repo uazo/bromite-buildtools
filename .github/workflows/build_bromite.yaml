@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 env:
-  BROMITE_SHA: aa131bcbb6021753c716c5700f3311858f7dc6cb
+  BROMITE_SHA: 76745fde6ed75542f005ea5528f486df41c56da4
   REMOVEDOCKERSUPPORT: true
 
 jobs:
@@ -131,7 +131,7 @@ jobs:
           REMOVEDOCKERSUPPORT: true
           
     container:
-      image: uazo/bromite-build:aa131bcbb6021753c716c5700f3311858f7dc6cb #${{ env.BROMITE_SHA }}
+      image: uazo/bromite-build:76745fde6ed75542f005ea5528f486df41c56da4 #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
         USELOCALIMAGE: true
