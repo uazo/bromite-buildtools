@@ -33,6 +33,7 @@ jobs:
         run: |
           if ! [[ -z "${HTTP_PROXY}" ]]; then
             PROXY_ADDR=http://$(hostname -I | xargs):8118
+            echo "PROXY_ADDR=$PROXY_ADDR" >> $GITHUB_ENV
           fi
 
       - name: Get current chromium version
