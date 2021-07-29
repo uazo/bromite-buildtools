@@ -1,6 +1,17 @@
 FROM ubuntu:20.04
 ARG VERSION
 
+ARG HTTP_PROXY
+
+ENV HTTP_PROXY=$HTTP_PROXY
+ENV http_proxy=$HTTP_PROXY
+
+ENV HTTPS_PROXY=$HTTP_PROXY
+ENV https_proxy=$HTTP_PROXY
+
+RUN touch /etc/apt/apt.conf.d/proxy.conf && \
+    echo "Acquire::http::Proxy \"$HTTP_PROXY\";" >/etc/apt/apt.conf.d/proxy.conf
+
 RUN dpkg --add-architecture i386
 
 RUN apt-get update &&\
