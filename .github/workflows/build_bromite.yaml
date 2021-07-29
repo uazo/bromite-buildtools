@@ -27,7 +27,14 @@ jobs:
         with:
           path: bromite-buildtools
           fetch-depth: 1
-          
+
+      - name: Get current proxy settings
+        shell: bash
+        run: |
+          if ! [[ -z "${HTTP_PROXY}" ]]; then
+            PROXY_ADDR=http://$(hostname -I | xargs):8118
+          fi
+
       - name: Get current chromium version
         shell: bash
         run: |
@@ -57,6 +64,7 @@ jobs:
               DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION \
                 --progress plain \
                 --build-arg VERSION=$VERSION \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 --no-cache \
                 bromite-buildtools/images/build-deps/.
             fi
@@ -72,6 +80,7 @@ jobs:
               DOCKER_BUILDKIT=1 docker build -t uazo/chromium:$VERSION \
                 --progress plain \
                 --build-arg VERSION=$VERSION \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 bromite-buildtools/images/chr-source/.
             fi
           fi
@@ -86,6 +95,7 @@ jobs:
               DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
                 --build-arg BROMITE_SHA=$BROMITE_SHA \
                 --build-arg VERSION=$VERSION \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 bromite-buildtools/images/bromite-source/.
             fi
           fi
@@ -99,6 +109,7 @@ jobs:
             if [ $IS_PRESENT -ne "0" ]; then
               DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$BROMITE_SHA --progress plain \
                 --build-arg BROMITE_SHA=$BROMITE_SHA \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 --no-cache \
                 bromite-buildtools/images/bromite-build/.
             fi
