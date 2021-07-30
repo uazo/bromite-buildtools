@@ -158,10 +158,6 @@ jobs:
         SERVER_HOST_GOMA: gomaserver
         REMOVEDOCKERSUPPORT: true
         USELOCALIMAGE: true
-        HTTP_PROXY: ""
-        HTTPS_PROXY: ""
-        http_proxy: ""
-        https_proxy: ""
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
@@ -174,6 +170,11 @@ jobs:
         run: |
           export WORKSPACE=/home/lg/working_dir
           cd $WORKSPACE
+          
+          HTTP_PROXY=
+          HTTPS_PROXY=
+          http_proxy=
+          https_proxy=
           
           export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
           # get goma internal server ip
