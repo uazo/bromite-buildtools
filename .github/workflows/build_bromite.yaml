@@ -140,6 +140,11 @@ jobs:
         #  - 5050:5050
         volumes: 
           - /tmp/proxy:/tmp/proxy
+        options: >-
+          --health-cmd "hostname -I >/tmp/proxy/gomaserverip"
+          --health-interval 1000m
+          --health-timeout 5s
+          --health-retries 5
         env:
           REDISHOST: redis
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
@@ -162,6 +167,11 @@ jobs:
         env: 
           GOMAJOBS: 60
         run: |
-          cd /home/lg/working_dir/
           export WORKSPACE=/home/lg/working_dir
+          cd $WORKSPACE
+          
+          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
+          # get goma internal server ip
+          # SERVER_HOST_GOMA=$(docker inspect -f '{{.Config.Image}}={{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) | grep goma-server | sed 's/[^=]*=\(.*\)/\1/' | xargs)
+          
           ./start-build.sh
