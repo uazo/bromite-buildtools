@@ -7,13 +7,15 @@ NC='\033[0m' # No Color
 
 echo -e ${RED} -------- start goma-server ${NC}
 
-test -f /tmp/proxy/bots.sock && sudo rm /tmp/proxy/bots.sock
-socat UNIX-LISTEN:/tmp/proxy/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &
+#test -f /tmp/proxy/bots.sock && sudo rm /tmp/proxy/bots.sock
+#socat UNIX-LISTEN:/tmp/proxy/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &
+
+socat TCP-LISTEN:50051,reuseaddr,fork UNIX-CLIENT:/tmp/proxy/bots.sock &
 
 cd ./goma-server/
 /usr/local/go/bin/go run ./cmd/remoteexec_proxy/main.go \
    --port 5050 \
-   --remoteexec-addr $REMOTEEXEC_ADDR \
+   --remoteexec-addr 127.0.0.1:50051 \
    --remote-instance-name default_instance \
    --insecure-remoteexec \
    --allowed-users ppp \
