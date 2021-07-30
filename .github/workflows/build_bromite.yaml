@@ -142,9 +142,10 @@ jobs:
           - /tmp/proxy:/tmp/proxy
         options: >-
           --health-cmd "hostname -I >/tmp/proxy/gomaserverip"
-          --health-interval 1000m
+          --health-interval 30s
           --health-timeout 5s
           --health-retries 5
+          
         env:
           REDISHOST: redis
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
