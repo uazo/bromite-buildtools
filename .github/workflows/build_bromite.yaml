@@ -17,6 +17,7 @@ on:
 env:
   BROMITE_SHA: 76745fde6ed75542f005ea5528f486df41c56da4
   REMOVEDOCKERSUPPORT: true
+  USELOCALIMAGE: true
 
 jobs:
   check_images:
@@ -129,8 +130,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        env:
-          REMOVEDOCKERSUPPORT: true
       gomaserver:
         image: uazo/goma-server
         #ports: 
@@ -140,19 +139,27 @@ jobs:
         env:
           REDISHOST: redis
           REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
-          REMOVEDOCKERSUPPORT: true
           
     container:
       image: uazo/bromite-build:76745fde6ed75542f005ea5528f486df41c56da4 #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
-        USELOCALIMAGE: true
-        REMOVEDOCKERSUPPORT: true
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
 
     steps:
+      - name: Get current proxy settings
+        shell: bash
+        run: |
+          if ! [[ -z "${HTTP_PROXY}" ]]; then
+            PROXY_ADDR=http://$(hostname -I | xargs):8118
+            echo "HTTP_PROXY=$PROXY_ADDR" >> $GITHUB_ENV
+            echo "HTTPS_PROXY=$PROXY_ADDR" >> $GITHUB_ENV
+            echo "http_proxy=$PROXY_ADDR" >> $GITHUB_ENV
+            echo "https_proxy=$PROXY_ADDR" >> $GITHUB_ENV
+          fi
+      
       - name: Build Bromite
         shell: bash
         env: 
