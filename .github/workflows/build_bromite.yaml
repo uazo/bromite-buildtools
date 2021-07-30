@@ -156,18 +156,7 @@ jobs:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
 
-    steps:
-      - name: Get current proxy settings
-        shell: bash
-        run: |
-          if ! [[ -z "${HTTP_PROXY}" ]]; then
-            PROXY_ADDR=http://$(hostname -I | xargs):8118
-            echo "HTTP_PROXY=$PROXY_ADDR" >> $GITHUB_ENV
-            echo "HTTPS_PROXY=$PROXY_ADDR" >> $GITHUB_ENV
-            echo "http_proxy=$PROXY_ADDR" >> $GITHUB_ENV
-            echo "https_proxy=$PROXY_ADDR" >> $GITHUB_ENV
-          fi
-      
+    steps:    
       - name: Build Bromite
         shell: bash
         env: 
@@ -175,5 +164,4 @@ jobs:
         run: |
           cd /home/lg/working_dir/
           export WORKSPACE=/home/lg/working_dir
-          ./pre-start.sh
           ./start-build.sh
