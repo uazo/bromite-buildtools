@@ -158,6 +158,10 @@ jobs:
         SERVER_HOST_GOMA: gomaserver
         REMOVEDOCKERSUPPORT: true
         USELOCALIMAGE: true
+        HTTP_PROXY: ""
+        HTTPS_PROXY: ""
+        http_proxy: ""
+        https_proxy: ""
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
