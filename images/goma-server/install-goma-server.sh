@@ -17,3 +17,8 @@ rm go1.16.2.linux-amd64.tar.gz
 echo -e ${RED} -------- cloning goma-server ${NC}
 
 git clone https://github.com/uazo/goma-server
+
+cd goma-server
+/usr/local/go/bin/go run ./cmd/remoteexec_proxy/main.go --preload=true
+
+cd ..
