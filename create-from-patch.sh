@@ -34,17 +34,23 @@ else
 	if [[ "$NEWLINE" == Subject:* ]]; then
 		echo "" >>$PATCH_FILE
 	fi
-fi				
+fi
 
 echo "FILE:$(basename $PATCH)" >>$PATCH_FILE
 echo "---" >>$PATCH_FILE
 echo "$CONTENT" >>$PATCH_FILE
 
-#echo press return
-#read  -n 1
+echo press return
+read  -n 1
 
 git reset --hard
 git clean -f -d
 
 echo "  Applying new patch"
-git am $PATCH_FILE
+OK=1
+git am $PATCH_FILE || OK=0
+
+if [[ OK -eq 0 ]]; then
+        echo "---> Failed to apply. Press return"
+        read  -n 1
+fi

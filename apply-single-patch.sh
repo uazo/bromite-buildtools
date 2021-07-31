@@ -14,12 +14,16 @@ echo "Applying patch $PATCH" | tee -a ${LOG_FILE}
 git apply --reject --whitespace=fix $PATCH && OK=1
 
 if [[ OK -eq 0 ]]; then
+        OK=1
+        for file in $(grep '+++ b/' $PATCH | sed -e 's#+++ [ab]/##'); do
+                test -f $file || OK=0
+        done
+
 	for file in $(find . -name *.rej); do
 		echo " -> Check $file" | tee -a ${LOG_FILE};
-		wiggle --no-ignore --replace ${file::-4} $file && rm $file && rm ${file::-4}.porig && echo "    OK";
+		wiggle --no-ignore --replace ${file::-4} $file && rm $file && rm ${file::-4}.porig && echo "    OK" || OK=0
 	done
 
-	OK=1
 	for file in $(find . -name *.rej); do
 		echo "---Found: $file" | tee -a ${LOG_FILE};
 		git add ${file::-4}
@@ -64,5 +68,5 @@ if [[ OK -eq 0 ]]; then
 fi
 
 if [[ DOEXPORT -eq 1 ]]; then
-    bash ~/buildtools/create-from-patch.sh $PATCH $2
+    bash ~/bromite-buildtools/create-from-patch.sh $PATCH $2
 fi

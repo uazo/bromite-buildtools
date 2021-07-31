@@ -37,26 +37,26 @@ for current_file in $(cat $PATCH_LIST); do
         echo "Adding $current_file"
         echo "Executing bash ~/create-from-patch.sh $PATCH_OLD_PATH/${current_file:1} $PATCH_NEW_PATH"
 
-        bash ~/buildtools/create-from-patch.sh $PATCH_OLD_PATH/${current_file:1} $PATCH_NEW_PATH
+        bash ~/bromite-buildtools/create-from-patch.sh $PATCH_OLD_PATH/${current_file:1} $PATCH_NEW_PATH
 
-        echo "Press return"
-        read  -n 1
+       #echo "Press return"
+       #read  -n 1
 
 
     elif [[ $current_file =~ ^1.* ]]; then
 
         echo "Using new path $current_file"
 
-        bash ~/buildtools/apply-single-patch.sh $PATCH_NEW_PATH/${current_file:1} $PATCH_NEW_PATH
+        bash ~/bromite-buildtools/apply-single-patch.sh $PATCH_NEW_PATH/${current_file:1} $PATCH_NEW_PATH
 
         echo ""
         LAST_COMMIT=$(git rev-parse HEAD)
         echo "Last Commit " $LAST_COMMIT
-        bash ~/buildtools/export-single-patch.sh $LAST_COMMIT
+        bash ~/bromite-buildtools/export-single-patch.sh $LAST_COMMIT
 
     else
 
-        bash ~/buildtools/apply-single-patch.sh $PATCH_OLD_PATH/$current_file $PATCH_NEW_PATH
+        bash ~/bromite-buildtools/apply-single-patch.sh $PATCH_OLD_PATH/$current_file $PATCH_NEW_PATH
 
         echo $current_file >>$DESTINATION
         echo $PATCH_FILE
@@ -64,7 +64,7 @@ for current_file in $(cat $PATCH_LIST); do
         echo ""
         LAST_COMMIT=$(git rev-parse HEAD)
         echo "Last Commit " $LAST_COMMIT
-        bash ~/buildtools/export-single-patch.sh $LAST_COMMIT
+        bash ~/bromite-buildtools/export-single-patch.sh $LAST_COMMIT
 
         #cp -r ~/bromite/build/patches-new/* ~/br2/bromite/build/patches/
         #git -C ~/br2/bromite/ add .

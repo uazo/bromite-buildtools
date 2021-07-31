@@ -25,6 +25,6 @@ for patch in $ALLPATCHS_E; do
 		read  -n 1
 	fi
 
-	bash ~/buildtools/export-single-patch.sh $patch $PATCH_FILE
+	bash ~/bromite-buildtools/export-single-patch.sh $patch $PATCH_FILE
 
 done

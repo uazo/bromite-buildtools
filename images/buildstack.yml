@@ -1,6 +1,38 @@
 version: "3.9"
 
 services:
+  runner-proxy:
+    image: uazo/privoxy
+    networks:
+      - bridge-ext
+    env_file:
+      - buildstack.env
+    volumes:
+      - /tmp/proxy:/tmp/proxy:rw
+      - /tmp/forward-proxy:/tmp/forward-proxy:rw
+    deploy:
+      mode: global
+      placement:
+        max_replicas_per_node: 1
+        constraints: [node.labels.githubrunner == 1]
+
+#  githubrunner:
+#    image: uazo/github-runner
+#    runtime: sysbox-runc
+#    depends_on:
+#      - runner-proxy
+#    networks:
+#      - bridge-int
+#    volumes:
+#      - /tmp/proxy:/tmp/proxy:rw
+#      - /tmp/forward-proxy:/tmp/forward-proxy:rw
+#      - /tmp/docker-inner:/var/lib/docker:rw
+#    deploy:
+#      mode: global
+#      placement:
+#        max_replicas_per_node: 1
+#        constraints: [node.labels.githubrunner == 1]
+
   buildboxcasd:
     image: uazo/buildboxcasd
     networks:
@@ -27,6 +59,20 @@ services:
       placement:
         max_replicas_per_node: 8
         constraints: [node.labels.gomarunners == 8]
+
+  buildboxrunner-6:
+    image: uazo/buildboxrunner
+    networks:
+      - bridge-int
+    depends_on:
+      - buildboxcasd
+    volumes:
+      - /tmp/cache:/wrk-cache:rw
+    deploy:
+      replicas: 20
+      placement:
+        max_replicas_per_node: 6
+        constraints: [node.labels.gomarunners == 6]
 
   buildboxrunner-4:
     image: uazo/buildboxrunner
