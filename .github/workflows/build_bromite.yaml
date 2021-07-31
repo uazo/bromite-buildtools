@@ -156,8 +156,9 @@ jobs:
       image: uazo/bromite-build:76745fde6ed75542f005ea5528f486df41c56da4 #${{ env.BROMITE_SHA }}
       env:
         SERVER_HOST_GOMA: gomaserver
-        REMOVEDOCKERSUPPORT: true
-        USELOCALIMAGE: true
+        REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
+        USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
+        USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
         - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
