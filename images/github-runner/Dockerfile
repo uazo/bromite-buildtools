@@ -23,7 +23,7 @@ RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       systemd systemd-sysv libsystemd0 ca-certificates dbus \
-      iptables iproute2 kmod locales sudo udev && \
+      iptables iproute2 kmod locales sudo udev socat && \
     echo "ReadKMsg=no" >> /etc/systemd/journald.conf && \
     apt-get clean -y && \
     rm -rf /var/cache/debconf/* /var/lib/apt/lists/* /var/log/* /tmp/* /var/tmp/* \
@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y openssh-server 
     mkdir /home/admin/.ssh && \
     chown admin:admin /home/admin/.ssh
 
-EXPOSE 22
+#EXPOSE 22
 
 # Extra deps for GHA Runner
 ENV DEBIAN_FRONTEND=noninteractive
@@ -63,7 +63,7 @@ RUN apt-get update \
     wget \
     zip \
     git \
-    pigz \
+    pigz nano \
     && rm -rf /var/lib/apt/list/*
 
 # Add and config runner user as sudo
@@ -77,7 +77,7 @@ RUN useradd -m runner \
 
 # Build args
 ARG TARGETPLATFORM=amd64
-ARG RUNNER_VERSION=2.302.1
+ARG RUNNER_VERSION=2.302.4
 WORKDIR /runner
 
 # Runner download supports amd64 as x64
@@ -108,6 +108,13 @@ COPY --chown=runner:runner patched/ ./patched/
 RUN chmod +x ./patched/runsvc.sh /usr/local/bin/startup.sh
 
 USER runner
+
+ENV HTTP_PROXY="http://127.0.0.1:8118"
+ENV HTTPS_PROXY="http://127.0.0.1:8118"
+ENV http_proxy="http://127.0.0.1:8118"
+ENV https_proxy="http://127.0.0.1:8118"
+COPY docker.default /etc/default/docker
+COPY proxy.conf /etc/apt/apt.conf.d/proxy.conf
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 CMD ["startup.sh"]

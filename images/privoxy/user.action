@@ -1,0 +1,20 @@
+{ +block{blocked} } 
+/ # Block all URLs
+
+{ -block }
+.github.com
+.docker.io
+.docker.com
+.githubusercontent.com
+.ubuntu.com
+
+# for buildeps
+chromium.googlesource.com
+
+# for chr-source
+chrome-infra-packages.appspot.com
+.googleapis.com
+.googlesource.com
+
+# for goma client
+chrome-infra-packages.appspot.com

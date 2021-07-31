@@ -1,7 +1,14 @@
 #!/bin/bash
 
+echo "Starting Proxy Support"
+socat TCP-LISTEN:8118,reuseaddr,fork UNIX-CLIENT:/tmp/forward-proxy/proxy.sock &
+sudo iptables -A INPUT -p tcp -s localhost --dport 8118 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 8118 -j DROP
+
 echo "Starting supervisor (Docker)"
 sudo service docker start
+
+#bash
 
 if [ -n "${GITHUB_REPOSITORY}" ]
 then
