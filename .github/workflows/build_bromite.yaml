@@ -138,8 +138,6 @@ jobs:
         
       gomaserver:
         image: uazo/goma-server
-        #ports: 
-        #  - 5050:5050
         volumes: 
           - /tmp/proxy:/tmp/proxy
         options: >-
@@ -150,7 +148,6 @@ jobs:
           
         env:
           REDISHOST: redis
-          REMOTEEXEC_ADDR: ${{ secrets.REMOTEEXEC_ADDR }}
           REMOVEDOCKERSUPPORT: true
           USELOCALIMAGE: true
   
