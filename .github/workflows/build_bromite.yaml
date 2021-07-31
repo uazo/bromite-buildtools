@@ -13,9 +13,14 @@ permissions:
       
 on:
   workflow_dispatch:
-
+    inputs:
+      sha:
+        description: 'uazo/bromite SHA'
+        required: true
+        default: '76745fde6ed75542f005ea5528f486df41c56da4'
+        
 env:
-  BROMITE_SHA: 76745fde6ed75542f005ea5528f486df41c56da4
+  BROMITE_SHA: ${{ github.event.inputs.sha }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
 
@@ -168,7 +173,7 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
-        - /storage/images/${{ env.BROMITE_SHA }}:/home/lg/working_dir/artifacs
+        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
 
     steps:    
