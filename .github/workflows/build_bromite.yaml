@@ -196,7 +196,9 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           
           # clean artifacts
-          rm -rf /home/lg/working_dir/artifacs/*
+          ARTIFACS_DIR=/home/lg/working_dir/artifacs
+          sudo chmod 777 $ARTIFACS_DIR
+          rm -rf $ARTIFACS_DIR/*
           
           # set goma options
           export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
@@ -222,9 +224,9 @@ jobs:
           if [[ OUT_PRESENT -eq 0 ]]; then
 
              echo "::group::-------- sync out folder"
-             test -d ../../artifacs/out/bromite && \
+             test -d $ARTIFACS_DIR/out/bromite && \
                 mkdir -p out/bromite && \
-                cp -arp ../../artifacs/out/bromite/* out/bromite/
+                cp -arp $ARTIFACS_DIR/out/bromite/* out/bromite/
              echo "::endgroup::"
 
              echo "::group::-------- gn gen"
@@ -233,7 +235,7 @@ jobs:
 
              echo "::group::-------- gn args"
              gn args out/bromite/ --list --short
-             gn args out/bromite/ --list >$WORKSPACE/artifacs/gn_list
+             gn args out/bromite/ --list >$ARTIFACS_DIR/gn_list
              echo "::endgroup::"
 
              echo "::group::-------- apply .mtool"
@@ -264,23 +266,23 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::-------- get goma logs"
-          wget http://127.0.0.1:8088/logz?INFO -O ../../artifacs/goma-client.log
+          wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
           cp out/bromite/apks/* $WORKSPACE/artifacs/
           echo "::endgroup::"
 
           echo "::group::-------- generating breakpad symbols"
           autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
           components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
-             --symbols-dir=$WORKSPACE/artifacs/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so --clear --verbose
-          cp out/bromite/lib.unstripped/libchrome.so $WORKSPACE/artifacs/symbols/libchrome.lib.so
-          cp out/bromite/minidump_stackwalk $WORKSPACE/artifacs/symbols
-          cp out/bromite/dump_syms $WORKSPACE/artifacs/symbols
+             --symbols-dir=$ARTIFACS_DIR/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so --clear --verbose
+          cp out/bromite/lib.unstripped/libchrome.so $ARTIFACS_DIR/symbols/libchrome.lib.so
+          cp out/bromite/minidump_stackwalk $ARTIFACS_DIR/symbols
+          cp out/bromite/dump_syms $ARTIFACS_DIR/symbols
           echo "::endgroup::"
 
           echo "::group::-------- sync out folder"
           $WORKSPACE/mtool/chromium/mtime.sh --backup
           mv .mtool out/bromite/
-          cp -arp out/bromite $WORKSPACE/artifacs/out
+          cp -arp out/bromite $ARTIFACS_DIR/out
           echo "::endgroup::"
 
           echo "::group::-------- stop goma"
