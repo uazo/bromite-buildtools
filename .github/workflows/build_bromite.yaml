@@ -168,7 +168,7 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
-        - /storage/bromite/${{ github.sha }}:/home/lg/working_dir/artifacs
+        - /storage/images/${{ github.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
 
     steps:    
@@ -180,13 +180,104 @@ jobs:
           export WORKSPACE=/home/lg/working_dir
           cd $WORKSPACE
           
+          # reset proxy env
           HTTP_PROXY=
           HTTPS_PROXY=
           http_proxy=
           https_proxy=
           
-          # get goma internal server ip
-          # SERVER_HOST_GOMA=$(docker inspect -f '{{.Config.Image}}={{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) | grep goma-server | sed 's/[^=]*=\(.*\)/\1/' | xargs)
-          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
+          # set workspace paths
+          WORKSPACE=/home/lg/working_dir
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           
-          ./start-build.sh
+          # clean artifacts
+          rm -rf /home/lg/working_dir/artifacs/*
+          
+          # set goma options
+          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
+          export GOMA_SERVER_HOST=$SERVER_HOST_GOMA
+          export GOMA_SERVER_PORT=5050
+          export GOMA_USE_SSL=false
+          export GOMA_HTTP_AUTHORIZATION_FILE=$WORKSPACE/.debug_auth_file
+          export GOMA_HERMETIC=error
+          export GOMA_USE_LOCAL=false
+          export GOMA_FALLBACK=true
+          export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
+
+          # start goma client
+          echo "::group::-------- start goma client"
+          $WORKSPACE/goma/goma_ctl.py ensure_stop
+          $WORKSPACE/goma/goma_ctl.py ensure_start
+          echo "::endgroup::"
+          
+          cd chromium/src
+
+          OUT_PRESENT=0
+          test -d out/bromite && OUT_PRESENT=1
+          if [[ OUT_PRESENT -eq 0 ]]; then
+
+             echo "::group::-------- sync out folder"
+             test -d ../../artifacs/out/bromite && \
+                mkdir -p out/bromite && \
+                cp -arp ../../artifacs/out/bromite/* out/bromite/
+             echo "::endgroup::"
+
+             echo "::group::-------- gn gen"
+             gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
+             echo "::endgroup::"
+
+             echo "::group::-------- gn args"
+             gn args out/bromite/ --list --short
+             gn args out/bromite/ --list >$WORKSPACE/artifacs/gn_list
+             echo "::endgroup::"
+
+             echo "::group::-------- apply .mtool"
+             test -f out/bromite/.mtool && \
+                cp out/bromite/.mtool .mtool && \
+                $WORKSPACE/mtool/chromium/mtime.sh --restore
+             echo "::endgroup::"
+
+          fi
+
+          if [[ -z "${GOMAJOBS}" ]]; then
+              GOMAJOBS=40
+          fi
+
+          echo "::group::-------- pre-cache toolchain"
+          sudo ../../casupload --cas-server=unix:/tmp/proxy/bots.sock --instance=default_instance \
+                  third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
+                  third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/include \
+                  third_party/llvm-build/Release+Asserts/lib \
+                  third_party/llvm-build/Release+Asserts/bin \
+                  buildtools/third_party/libc++ \
+            chrome/android/profiles/afdo.prof
+          echo "::endgroup::"
+
+
+          echo "::group::-------- start build"
+          autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
+          echo "::endgroup::"
+
+          echo "::group::-------- get goma logs"
+          wget http://127.0.0.1:8088/logz?INFO -O ../../artifacs/goma-client.log
+          cp out/bromite/apks/* $WORKSPACE/artifacs/
+          echo "::endgroup::"
+
+          echo "::group::-------- generating breakpad symbols"
+          autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
+          components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
+             --symbols-dir=$WORKSPACE/artifacs/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so --clear --verbose
+          cp out/bromite/lib.unstripped/libchrome.so $WORKSPACE/artifacs/symbols/libchrome.lib.so
+          cp out/bromite/minidump_stackwalk $WORKSPACE/artifacs/symbols
+          cp out/bromite/dump_syms $WORKSPACE/artifacs/symbols
+          echo "::endgroup::"
+
+          echo "::group::-------- sync out folder"
+          $WORKSPACE/mtool/chromium/mtime.sh --backup
+          mv .mtool out/bromite/
+          cp -arp out/bromite $WORKSPACE/artifacs/out
+          echo "::endgroup::"
+
+          echo "::group::-------- stop goma"
+          $WORKSPACE/goma/goma_ctl.py ensure_stop
+          echo "::endgroup::"
