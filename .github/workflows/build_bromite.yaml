@@ -168,7 +168,7 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
-        - /storage/images/${{ github.sha }}:/home/lg/working_dir/artifacs
+        - /storage/images/${{ env.BROMITE_SHA }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
 
     steps:    
