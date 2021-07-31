@@ -118,6 +118,15 @@ jobs:
                 bromite-buildtools/images/bromite-build/.
             fi
           fi
+        
+      - name: Mark image to build
+        shell: bash
+        run: |
+          IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:build > /dev/null ; echo $?)
+          if [ $IS_PRESENT -eq "1" ]; then
+            docker rmi uazo/bromite-build:build
+          fi
+          docker tag uazo/bromite-build:$BROMITE_SHA uazo/bromite-build:build
           
   build:
     runs-on: self-hosted
@@ -152,7 +161,7 @@ jobs:
           USELOCALIMAGE: true
   
     container:
-      image: uazo/bromite-build:76745fde6ed75542f005ea5528f486df41c56da4 #${{ env.BROMITE_SHA }}
+      image: uazo/bromite-build:build
       env:
         SERVER_HOST_GOMA: gomaserver
         REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
@@ -176,8 +185,8 @@ jobs:
           http_proxy=
           https_proxy=
           
-          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
           # get goma internal server ip
           # SERVER_HOST_GOMA=$(docker inspect -f '{{.Config.Image}}={{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) | grep goma-server | sed 's/[^=]*=\(.*\)/\1/' | xargs)
+          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
           
           ./start-build.sh
