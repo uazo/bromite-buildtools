@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+images/github-runner/.env
+images/privoxy/privoxy.conf.save
