@@ -29,12 +29,14 @@ jobs:
           path: bromite-buildtools
           fetch-depth: 1
 
-      - name: Get current proxy settings
+      - name: Enable proxy on container
         shell: bash
         run: |
           if ! [[ -z "${HTTP_PROXY}" ]]; then
             PROXY_ADDR=http://$(hostname -I | xargs):8118
             echo "PROXY_ADDR=$PROXY_ADDR" >> $GITHUB_ENV
+            sudo iptables -D INPUT -p tcp -s localhost --dport 8118 -j ACCEPT
+            sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
           fi
 
       - name: Get current chromium version
