@@ -18,6 +18,7 @@ CMD PATH=.:$PATH &&\
     ./buildbox-worker \
        --instance=default_instance \
        --bots-remote=unix:/wrk-cache/bots.sock \
+       --stop-after=50 \
        --bots-retry-limit=5 \
        --buildbox-run=buildbox-run-hosttools \
        --cas-remote=unix:/wrk-cache/casd.sock \
