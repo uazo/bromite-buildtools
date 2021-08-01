@@ -138,22 +138,12 @@ jobs:
     needs: check_images
     if: success()
 
-    services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        env:
-          REMOVEDOCKERSUPPORT: true
-          USELOCALIMAGE: true
-        
+    services:      
       gomaserver:
         image: uazo/goma-server
         volumes: 
           - /tmp/proxy:/tmp/proxy
+          - /redis:/var/lib/redis
         options: >-
           --health-cmd "hostname -I >/tmp/proxy/gomaserverip"
           --health-interval 30s
@@ -161,7 +151,6 @@ jobs:
           --health-retries 5
           
         env:
-          REDISHOST: redis
           REMOVEDOCKERSUPPORT: true
           USELOCALIMAGE: true
   
@@ -199,6 +188,10 @@ jobs:
           ARTIFACS_DIR=/home/lg/working_dir/artifacs
           sudo chmod 777 $ARTIFACS_DIR
           rm -rf $ARTIFACS_DIR/*
+          
+          # update hosts
+          #sudo echo "$(cat /tmp/proxy/gomaserverip | xargs) gomaserver" >/etc/hosts
+          #sudo echo "$(cat /tmp/proxy/redisip | xargs) redis" >/etc/hosts
           
           # set goma options
           export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
