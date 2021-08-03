@@ -6,7 +6,7 @@ COPY config-file .
 
 RUN apt-get update \
     && \
-    apt-get -y install sudo wget git socat \
+    apt-get -y install sudo wget git socat redis-server \
     && \
     sudo chmod +x ./install-goma-server.sh \
     && \

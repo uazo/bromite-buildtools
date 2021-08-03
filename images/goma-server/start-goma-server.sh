@@ -3,7 +3,10 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-#export REDISHOST=localhost
+echo -e ${RED} -------- start redis-server ${NC}
+
+export REDISHOST=localhost
+sudo redis-server /etc/redis/redis.conf
 
 echo -e ${RED} -------- start goma-server ${NC}
 
