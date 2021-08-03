@@ -280,4 +280,6 @@ jobs:
 
           echo "::group::-------- stop goma"
           $WORKSPACE/goma/goma_ctl.py ensure_stop
+          rm /tmp/gomacc*
+          rm -rf /tmp/goma_lg/
           echo "::endgroup::"
