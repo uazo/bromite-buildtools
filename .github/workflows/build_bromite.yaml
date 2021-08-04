@@ -23,6 +23,7 @@ env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
+  GOMAJOBS: 60
 
 jobs:
   check_images:
@@ -251,8 +252,6 @@ jobs:
 
       - name: Build Bromite
         shell: bash
-        env: 
-          GOMAJOBS: 60
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
@@ -270,24 +269,31 @@ jobs:
           
           wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
           
-      - name: Wait forever
+      - name: Generate breakpad symbols
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          sleep infinity
+          #sleep infinity
 
           cp out/bromite/apks/* $WORKSPACE/artifacs/
 
           echo "::group::-------- generating breakpad symbols"
           autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
           components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
-             --symbols-dir=$ARTIFACS_DIR/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so --clear --verbose
+             --symbols-dir=$ARTIFACS_DIR/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so \
+             --platform=android --clear --verbose
           cp out/bromite/lib.unstripped/libchrome.so $ARTIFACS_DIR/symbols/libchrome.lib.so
           cp out/bromite/minidump_stackwalk $ARTIFACS_DIR/symbols
           cp out/bromite/dump_syms $ARTIFACS_DIR/symbols
           echo "::endgroup::"
+
+      - name: Sync out folder
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
 
           echo "::group::-------- sync out folder"
           $WORKSPACE/mtool/chromium/mtime.sh --backup
@@ -295,8 +301,14 @@ jobs:
           cp -arp out/bromite $ARTIFACS_DIR/out
           echo "::endgroup::"
 
+      - name: Stop goma
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+
           echo "::group::-------- stop goma"
           $WORKSPACE/goma/goma_ctl.py ensure_stop
-          rm /tmp/gomacc*
+          find /tmp/ -maxdepth 1 -name "gomacc*" -print0 | xargs -0 rm
           rm -rf /tmp/goma_lg/
           echo "::endgroup::"
