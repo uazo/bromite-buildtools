@@ -161,6 +161,8 @@ jobs:
         REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
+        WORKSPACE: /home/lg/working_dir
+        ARTIFACS_DIR: /home/lg/working_dir/artifacs
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
@@ -170,7 +172,6 @@ jobs:
         shell: bash
         run: |
           # set workspace paths
-          export WORKSPACE=/home/lg/working_dir
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
           
@@ -181,7 +182,6 @@ jobs:
           https_proxy=
           
           # clean artifacts
-          ARTIFACS_DIR=/home/lg/working_dir/artifacs
           sudo chmod 777 $ARTIFACS_DIR
           rm -rf $ARTIFACS_DIR/*
           
@@ -254,6 +254,9 @@ jobs:
         env: 
           GOMAJOBS: 60
         run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
           echo "::group::-------- start build"
           autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
           echo "::endgroup::"
@@ -266,6 +269,9 @@ jobs:
       - name: Wait forever
         shell: bash
         run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
           sleep infinity
 
           echo "::group::-------- generating breakpad symbols"
