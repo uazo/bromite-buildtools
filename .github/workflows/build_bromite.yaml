@@ -163,15 +163,14 @@ jobs:
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
-        - /tmp/proxy:/tmp/proxy
 
     steps:    
-      - name: Build Bromite
+      - name: Prepare Build Container
         shell: bash
-        env: 
-          GOMAJOBS: 60
         run: |
+          # set workspace paths
           export WORKSPACE=/home/lg/working_dir
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
           
           # reset proxy env
@@ -179,10 +178,6 @@ jobs:
           HTTPS_PROXY=
           http_proxy=
           https_proxy=
-          
-          # set workspace paths
-          WORKSPACE=/home/lg/working_dir
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           
           # clean artifacts
           ARTIFACS_DIR=/home/lg/working_dir/artifacs
@@ -253,7 +248,11 @@ jobs:
             chrome/android/profiles/afdo.prof
           echo "::endgroup::"
 
-
+      - name: Build Bromite
+        shell: bash
+        env: 
+          GOMAJOBS: 60
+        run: |
           echo "::group::-------- start build"
           autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
           echo "::endgroup::"
@@ -262,6 +261,11 @@ jobs:
           wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
           cp out/bromite/apks/* $WORKSPACE/artifacs/
           echo "::endgroup::"
+          
+      - name: Wait forever
+        shell: bash
+        run: |
+          sleep infinity
 
           echo "::group::-------- generating breakpad symbols"
           autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
