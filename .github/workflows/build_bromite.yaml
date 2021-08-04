@@ -165,8 +165,8 @@ jobs:
         ARTIFACS_DIR: /home/lg/working_dir/artifacs
         HTTP_PROXY: ""
         HTTPS_PROXY: ""
-        http_proxy: ""
-        https_proxy: ""
+        #http_proxy: ""
+        #https_proxy: ""
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
