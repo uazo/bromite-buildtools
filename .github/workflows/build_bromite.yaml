@@ -163,10 +163,6 @@ jobs:
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
         WORKSPACE: /home/lg/working_dir
         ARTIFACS_DIR: /home/lg/working_dir/artifacs
-        HTTP_PROXY: ""
-        HTTPS_PROXY: ""
-        #http_proxy: ""
-        #https_proxy: ""
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
@@ -182,6 +178,12 @@ jobs:
           # clean artifacts
           sudo chmod 777 $ARTIFACS_DIR
           rm -rf $ARTIFACS_DIR/*
+
+          # reset proxy env
+          HTTP_PROXY=
+          HTTPS_PROXY=
+          http_proxy=
+          https_proxy=
           
           # update hosts
           #sudo echo "$(cat /tmp/proxy/gomaserverip | xargs) gomaserver" >/etc/hosts
@@ -260,6 +262,12 @@ jobs:
       - name: Get goma logs
         shell: bash
         run: |
+          # reset proxy env
+          HTTP_PROXY=
+          HTTPS_PROXY=
+          http_proxy=
+          https_proxy=
+          
           wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
           
       - name: Wait forever
