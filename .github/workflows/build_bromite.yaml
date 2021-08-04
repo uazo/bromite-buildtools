@@ -163,7 +163,8 @@ jobs:
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
-
+        - /tmp/proxy:/tmp/proxy
+        
     steps:    
       - name: Prepare Build Container
         shell: bash
