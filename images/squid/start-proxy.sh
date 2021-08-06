@@ -10,4 +10,4 @@ test -e /tmp/proxy/bots.sock && sudo rm /tmp/proxy/bots.sock
 socat UNIX-LISTEN:/tmp/proxy/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &
 sudo chmod 777 /tmp/proxy/bots.sock
 
-privoxy --no-daemon privoxy.conf
+squid -N

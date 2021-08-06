@@ -1,7 +1,3 @@
-{ +block{blocked} } 
-/ # Block all URLs
-
-{ -block }
 .github.com
 .docker.io
 .docker.com
@@ -9,7 +5,7 @@
 .ubuntu.com
 
 # for buildeps
-chromium.googlesource.com
+#chromium.googlesource.com
 
 # for chr-source
 chrome-infra-packages.appspot.com
@@ -17,4 +13,4 @@ chrome-infra-packages.appspot.com
 .googlesource.com
 
 # for goma client
-chrome-infra-packages.appspot.com
+#chrome-infra-packages.appspot.com
