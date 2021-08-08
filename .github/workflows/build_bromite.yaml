@@ -256,7 +256,7 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
+          #autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk
 
       - name: Get goma logs
         shell: bash
