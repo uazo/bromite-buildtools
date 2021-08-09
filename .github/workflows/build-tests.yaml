@@ -28,7 +28,6 @@ env:
 jobs:
   build-test:
     runs-on: self-hosted
-    needs: check_images
     if: success()
 
     services:      
@@ -68,10 +67,10 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
           
-          # clean artifacts
+          # copy artifacts
           sudo chmod 777 $ARTIFACS_DIR
-          #rm -rf $ARTIFACS_DIR/*
-
+          cp -arp $ARTIFACS_DIR/out out/bromite 
+          
           # reset proxy env
           HTTP_PROXY=
           HTTPS_PROXY=
@@ -100,33 +99,6 @@ jobs:
           echo "::endgroup::"
           
           cd chromium/src
-
-          OUT_PRESENT=0
-          test -d out/bromite && OUT_PRESENT=1
-          if [[ OUT_PRESENT -eq 0 ]]; then
-
-             echo "::group::-------- sync out folder"
-             test -d $ARTIFACS_DIR/out/bromite && \
-                mkdir -p out/bromite && \
-                cp -arp $ARTIFACS_DIR/out/bromite/* out/bromite/
-             echo "::endgroup::"
-
-             echo "::group::-------- gn gen"
-             gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite
-             echo "::endgroup::"
-
-             echo "::group::-------- gn args"
-             gn args out/bromite/ --list --short
-             gn args out/bromite/ --list >$ARTIFACS_DIR/gn_list
-             echo "::endgroup::"
-
-             echo "::group::-------- apply .mtool"
-             test -f out/bromite/.mtool && \
-                cp out/bromite/.mtool .mtool && \
-                $WORKSPACE/mtool/chromium/mtime.sh --restore
-             echo "::endgroup::"
-
-          fi
 
           if [[ -z "${GOMAJOBS}" ]]; then
               GOMAJOBS=40
