@@ -287,38 +287,6 @@ jobs:
           #cp out/bromite/dump_syms $ARTIFACS_DIR/symbols
           #echo "::endgroup::"
 
-      - name: Build junit tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          autoninja -j $GOMAJOBS -C out/bromite chrome_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite components_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite content_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite base_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite ui_junit_tests
-
-      - name: Build c++ tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          autoninja -j $GOMAJOBS -C out/bromite network_service
-          autoninja -j $GOMAJOBS -C out/bromite unit_tests
-          autoninja -j $GOMAJOBS -C out/bromite content_browsertests
-          autoninja -j $GOMAJOBS -C out/bromite components_unittests
-
-      - name: Build instrumentation tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-
-          autoninja -j $GOMAJOBS -C out/bromite content_shell_test_apk
-          autoninja -j $GOMAJOBS -C out/bromite chrome_public_test_apk
-
       - name: Sync out folder
         shell: bash
         run: |
@@ -330,11 +298,6 @@ jobs:
           mv .mtool out/bromite/
           cp -arp out/bromite $ARTIFACS_DIR/out
           echo "::endgroup::"
-
-      - name: Wait forever
-        shell: bash
-        run: |
-          sleep infinity
           
       - name: Stop goma
         shell: bash
