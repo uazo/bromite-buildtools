@@ -1,0 +1,91 @@
+name: Execute Tests
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+      
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'uazo/bromite SHA'
+        required: true
+        default: 'ce2f07034a3d3b257e9bada65d8293a6786bb95f'
+        
+env:
+  BROMITE_SHA: ${{ github.event.inputs.sha }}
+  REMOVEDOCKERSUPPORT: true
+  USELOCALIMAGE: true
+
+jobs:
+  get_image:
+    runs-on: self-hosted
+    steps:
+      - name: Mark image to test
+        shell: bash
+        run: |
+          docker tag uazo/bromite-build:$BROMITE_SHA uazo/bromite-build:test
+          
+  exec-test:
+    runs-on: self-hosted
+    container:
+      image: uazo/bromite-build:test
+      env:
+        REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
+        USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
+        USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
+        WORKSPACE: /home/lg/working_dir
+        ARTIFACS_DIR: /home/lg/working_dir/artifacs
+      volumes:
+        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
+        
+    steps:    
+      - name: Prepare Test Container
+        shell: bash
+        run: |
+          # set workspace paths
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE
+          
+          # copy artifacts
+          cd chromium/src
+          mkdir -p out/bromite
+          cp -arp $ARTIFACS_DIR/out out/bromite 
+          
+          # reset proxy env
+          HTTP_PROXY=
+          HTTPS_PROXY=
+          http_proxy=
+          https_proxy=
+
+      - name: Wait forever
+        shell: bash
+        run: |
+          sleep infinity
+
+      - name: Execute junit tests
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
+          out/bromite/bin/run_chrome_junit_tests | tee ~/chrome_junit_tests.log
+          out/bromite/bin/run_components_junit_tests | tee ~/components_junit_tests.log
+          out/bromite/bin/run_content_junit_tests | tee ~/content_junit_tests.log
+          out/bromite/bin/run_base_junit_tests | tee ~/base_junit_tests.log
+          out/bromite/bin/run_ui_junit_tests | tee ~/ui_junit_tests.log
+
+      - name: Execute c++ tests
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
+          #out/bromite/bin/run_content_browsertests  --avd-config tools/android/avd/proto/generic_android28.textpb | tee ~/content_browsertests.log
