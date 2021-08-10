@@ -60,13 +60,14 @@ jobs:
           # copy artifacts
           cd chromium/src
           mkdir -p out/bromite
-          cp -arp $ARTIFACS_DIR/out out/bromite 
+          cp -arp $ARTIFACS_DIR/out out/
+          mv out/out out/bromite
           
           # reset proxy env
-          HTTP_PROXY=
-          HTTPS_PROXY=
-          http_proxy=
-          https_proxy=
+          #HTTP_PROXY=
+          #HTTPS_PROXY=
+          #http_proxy=
+          #https_proxy=
 
       - name: Wait forever
         shell: bash
