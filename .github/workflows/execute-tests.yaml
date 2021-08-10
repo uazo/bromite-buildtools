@@ -35,6 +35,9 @@ jobs:
           
   exec-test:
     runs-on: self-hosted
+    needs: get_image
+    if: success()
+    
     container:
       image: uazo/bromite-build:test
       env:
