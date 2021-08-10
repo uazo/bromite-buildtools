@@ -1,36 +1,44 @@
 #!/bin/bash
 
-#docker stop gh-proxy
+docker stop gh-proxy
+
+GHRUNNERHOME=~/gh-runner
+sudo rm -rf $GHRUNNERHOME/tmp
 
 SYSBOX_UID=$(cat /etc/subuid | grep sysbox | cut -d : -f 2)
-mkdir -p /tmp/proxy
-mkdir -p /tmp/forward-proxy
-mkdir -p ~/redis
+mkdir -p $GHRUNNERHOME/tmp/proxy
+mkdir -p $GHRUNNERHOME/tmp/forward-proxy
+mkdir -p $GHRUNNERHOME/redis
 
-sudo chown $SYSBOX_UID:$SYSBOX_UID /tmp/proxy
-sudo chown $SYSBOX_UID:$SYSBOX_UID /tmp/forward-proxy
-sudo chown $SYSBOX_UID:$SYSBOX_UID ~/redis
+sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/tmp/proxy
+sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/tmp/forward-proxy
+sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/redis
+#sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/docker-inner
 
 docker run --rm -d --runtime=sysbox-runc \
   --name=gh-proxy \
   -e "REMOTEEXEC_ADDR=$REMOTEEXEC_ADDR" \
-  -v /tmp/proxy:/tmp/proxy:rw \
-  -v /tmp/forward-proxy:/tmp/forward-proxy:rw \
-  uazo/privoxy
+  -v $GHRUNNERHOME/tmp/proxy:/tmp/proxy:rw \
+  -v $GHRUNNERHOME/tmp/forward-proxy:/tmp/forward-proxy:rw \
+  uazo/squid
+
+docker logs gh-proxy
 
 while true
 do
+  #sudo chown -R $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/docker-inner
 
   docker run --runtime=sysbox-runc --name=gh-runner -ti --rm \
     --env-file=.env \
-    -v ~/docker-inner/:/var/lib/docker/:rw \
+    -v $GHRUNNERHOME/docker-inner/:/var/lib/docker/:rw \
     -v /storage/images:/storage/images:rw \
-    -v /tmp/proxy:/tmp/proxy:rw \
-    -v /tmp/forward-proxy:/tmp/forward-proxy:rw \
-    -v ~/redis:/redis:rw \
+    -v $GHRUNNERHOME/tmp/proxy:/tmp/proxy:rw \
+    -v $GHRUNNERHOME/tmp/forward-proxy:/tmp/forward-proxy:rw \
+    -v $GHRUNNERHOME/redis:/redis:rw \
     --network none \
     uazo/github-runner
 
+  echo "You can stop now"
   sleep 5s
 
 done

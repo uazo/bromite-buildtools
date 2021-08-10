@@ -14,3 +14,6 @@ chrome-infra-packages.appspot.com
 
 # for goma client
 #chrome-infra-packages.appspot.com
+
+# for pip
+.pypi.org
