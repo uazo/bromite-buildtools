@@ -22,10 +22,11 @@ echo "nomatter" >$WORKSPACE/.debug_auth_file
 sudo cp $WORKSPACE/goma_auth.py $WORKSPACE/goma/
 
 echo -e ${RED} -------- prepare vpython virtual environment
-sudo mkdir /github/home/.vpython_cipd_cache
+sudo mkdir -p /github/home/.vpython_cipd_cache
 sudo chown lg /github/home/.vpython_cipd_cache
 
-sudo mkdir /github/home/.vpython-root
+sudo mkdir -p /github/home/.vpython-root
 sudo chown lg /github/home/.vpython-root
 
-vpython -vpython-spec ~/working_dir/chromium/src/.vpython -vpython-log-level debug -vpython-tool install
+cd $WORKSPACE/chromium/src
+vpython -vpython-spec .vpython -vpython-log-level debug -vpython-tool install
