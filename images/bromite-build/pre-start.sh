@@ -20,3 +20,12 @@ cipd install infra/goma/client/linux-amd64 -root $WORKSPACE/goma
 
 echo "nomatter" >$WORKSPACE/.debug_auth_file
 sudo cp $WORKSPACE/goma_auth.py $WORKSPACE/goma/
+
+echo -e ${RED} -------- prepare vpython virtual environment
+sudo mkdir /github/home/.vpython_cipd_cache
+sudo chown lg /github/home/.vpython_cipd_cache
+
+sudo mkdir /github/home/.vpython-root
+sudo chown lg /github/home/.vpython-root
+
+vpython -vpython-spec ~/working_dir/chromium/src/.vpython -vpython-log-level debug -vpython-tool install
