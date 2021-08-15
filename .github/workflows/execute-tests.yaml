@@ -64,6 +64,7 @@ jobs:
           
           export VPYTHON_VIRTUALENV_ROOT=/home/lg/vpython_root
           mkdir $VPYTHON_VIRTUALENV_ROOT
+          echo "VPYTHON_VIRTUALENV_ROOT=$VPYTHON_VIRTUALENV_ROOT" >> $GITHUB_ENV
           
           # copy artifacts
           cd chromium/src
