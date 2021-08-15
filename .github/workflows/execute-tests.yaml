@@ -50,10 +50,10 @@ jobs:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         
     steps:    
-      - name: Wait forever
-        shell: bash
-        run: |
-          sleep infinity
+      #- name: Wait forever
+      #  shell: bash
+      #  run: |
+      #    sleep infinity
           
       - name: Prepare Test Container
         shell: bash
