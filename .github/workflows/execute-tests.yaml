@@ -23,6 +23,7 @@ env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
+  VPYTHON_VIRTUALENV_ROOT: /home/lg/vpython_root
 
 jobs:
   get_image:
@@ -64,7 +65,6 @@ jobs:
           
           export VPYTHON_VIRTUALENV_ROOT=/home/lg/vpython_root
           mkdir $VPYTHON_VIRTUALENV_ROOT
-          echo "VPYTHON_VIRTUALENV_ROOT=$VPYTHON_VIRTUALENV_ROOT" >> $GITHUB_ENV
           
           # copy artifacts
           cd chromium/src
