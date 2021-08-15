@@ -79,17 +79,40 @@ jobs:
           #http_proxy=
           #https_proxy=
 
-      - name: Execute junit tests
+      - name: Execute chrome junit test
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_chrome_junit_tests | tee out/tests/chrome_junit_tests.log || KO=1
           
-          out/bromite/bin/run_chrome_junit_tests | tee out/tests/chrome_junit_tests.log
-          out/bromite/bin/run_components_junit_tests | tee out/tests/components_junit_tests.log
-          out/bromite/bin/run_content_junit_tests | tee out/tests/content_junit_tests.log
-          out/bromite/bin/run_base_junit_tests | tee out/tests/base_junit_tests.log
-          out/bromite/bin/run_ui_junit_tests | tee out/tests/ui_junit_tests.log
+      - name: Execute components junit test
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_components_junit_tests | tee out/tests/components_junit_tests.log || KO=1
+          
+      - name: Execute content junit test
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_content_junit_tests | tee out/tests/content_junit_tests.log || KO=1
+
+      - name: Execute base junit test
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_base_junit_tests | tee out/tests/base_junit_tests.log || KO=1
+
+      - name: Execute ui junit test
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_ui_junit_tests | tee out/tests/ui_junit_tests.log || KO=1
 
       - name: Execute c++ tests
         shell: bash
