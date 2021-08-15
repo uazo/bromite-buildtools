@@ -11,6 +11,8 @@ COPY goma_auth.py .
 COPY casupload .
 COPY build_args.gni .
 
+ENV CIPD_CACHE_DIR=/home/lg/working_dir/.cipd_cache
+
 RUN sudo chmod +x ./start-build.sh \
     && \
     sudo chmod +x ./pre-start.sh \
