@@ -62,11 +62,15 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
           
+          export VPYTHON_VIRTUALENV_ROOT=/home/lg/vpython_root
+          mkdir $VPYTHON_VIRTUALENV_ROOT
+          
           # copy artifacts
           cd chromium/src
-          #mkdir -p out/bromite
-          cp -arp $ARTIFACS_DIR/out out/
-          mv out/out out/bromite
+          mkdir -p out/bromite
+          cp -arp $ARTIFACS_DIR/out/* out/bromite
+          
+          mkdir -p out/tests
           
           # reset proxy env
           #HTTP_PROXY=
@@ -80,11 +84,11 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          out/bromite/bin/run_chrome_junit_tests | tee ~/chrome_junit_tests.log
-          out/bromite/bin/run_components_junit_tests | tee ~/components_junit_tests.log
-          out/bromite/bin/run_content_junit_tests | tee ~/content_junit_tests.log
-          out/bromite/bin/run_base_junit_tests | tee ~/base_junit_tests.log
-          out/bromite/bin/run_ui_junit_tests | tee ~/ui_junit_tests.log
+          out/bromite/bin/run_chrome_junit_tests | tee out/tests/chrome_junit_tests.log
+          out/bromite/bin/run_components_junit_tests | tee out/tests/components_junit_tests.log
+          out/bromite/bin/run_content_junit_tests | tee out/tests/content_junit_tests.log
+          out/bromite/bin/run_base_junit_tests | tee out/tests/base_junit_tests.log
+          out/bromite/bin/run_ui_junit_tests | tee out/tests/ui_junit_tests.log
 
       - name: Execute c++ tests
         shell: bash
@@ -93,3 +97,11 @@ jobs:
           cd $WORKSPACE/chromium/src
           
           #out/bromite/bin/run_content_browsertests  --avd-config tools/android/avd/proto/generic_android28.textpb | tee ~/content_browsertests.log
+      
+      - name: Copy results
+        shell: bash
+        run: |
+          test -d $ARTIFACS_DIR/test_results && rm -rf $ARTIFACS_DIR/test_results
+          mkdir $ARTIFACS_DIR/test_results
+          cp -r $WORKSPACE/chromium/src/out/bromite/TEST_RESULTS* $ARTIFACS_DIR/test_results
+
