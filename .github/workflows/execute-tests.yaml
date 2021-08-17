@@ -48,7 +48,8 @@ jobs:
         WORKSPACE: /home/lg/working_dir
         ARTIFACS_DIR: /home/lg/working_dir/artifacs
       volumes:
-        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
+        #- /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
+        - /storage/images/${{ github.event.inputs.sha }}/out:/home/lg/working_dir/chromium/src/out/bromite:r
         
     steps:    
       - name: Prepare Test Container
@@ -58,13 +59,12 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
           
-          export VPYTHON_VIRTUALENV_ROOT=/home/lg/vpython_root
           mkdir $VPYTHON_VIRTUALENV_ROOT
           
           # copy artifacts
-          cd chromium/src
-          mkdir -p out/bromite
-          cp -arp $ARTIFACS_DIR/out/* out/bromite
+          #cd chromium/src
+          #mkdir -p out/bromite
+          #cp -arp $ARTIFACS_DIR/out/* out/bromite
           
           mkdir -p out/tests
           
