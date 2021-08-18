@@ -50,6 +50,7 @@ jobs:
       volumes:
         #- /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /storage/images/${{ github.event.inputs.sha }}/out:/home/lg/working_dir/chromium/src/out/bromite:r
+      options: --device=/dev/kvm
         
     steps:    
       - name: Prepare Test Container
