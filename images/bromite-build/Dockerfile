@@ -14,6 +14,7 @@ COPY build_args.gni .
 COPY generic_android31.textpb .
 
 ENV CIPD_CACHE_DIR=/home/lg/working_dir/.cipd_cache
+ENV VPYTHON_VIRTUALENV_ROOT=/home/lg/vpython_root
 
 RUN sudo chmod +x ./start-build.sh \
     && \
