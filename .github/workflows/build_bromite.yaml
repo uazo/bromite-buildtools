@@ -310,6 +310,7 @@ jobs:
           autoninja -j $GOMAJOBS -C out/bromite unit_tests
           autoninja -j $GOMAJOBS -C out/bromite content_browsertests
           autoninja -j $GOMAJOBS -C out/bromite components_unittests
+          autoninja -j $GOMAJOBS -C out/bromite components_browsertests
           
       - name: Build instrumentation tests
         shell: bash
