@@ -112,14 +112,80 @@ jobs:
           cd $WORKSPACE/chromium/src
           out/bromite/bin/run_ui_junit_tests | tee out/tests/ui_junit_tests.log || KO=1
 
-      - name: Execute c++ tests
+      - name: Start Android Emulator
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
+
+          sudo mkdir -p /github/home/.android
+          sudo chmod 666 /github/home/.android/
+          tools/android/avd/avd.py install --avd-config ../../generic_android31.textpb -v
+          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
           
-          #out/bromite/bin/run_content_browsertests  --avd-config tools/android/avd/proto/generic_android28.textpb | tee ~/content_browsertests.log
-      
+      - name: Execute gtests components/content_settings
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/content_settings --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/url_formatter
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/url_formatter --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/crash
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/crash --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/prefs
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/prefs --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/subresource_filter
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/subresource_filter --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/bookmarks
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/bookmarks --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/download
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/download --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute gtests components/history
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          tools/autotest.py -C out/bromite/ --run-all components/history --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c
+
+      - name: Execute run_content_browsertests
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          out/bromite/bin/run_content_browsertests -v --fast-local-dev
+          
       - name: Copy results
         shell: bash
         run: |
