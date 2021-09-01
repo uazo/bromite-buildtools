@@ -72,10 +72,10 @@ jobs:
           #http_proxy=
           #https_proxy=
 
-      - name: Wait forever
-        shell: bash
-        run: |
-          sleep infinity
+#      - name: Wait forever
+#        shell: bash
+#        run: |
+#          sleep infinity
       
       - name: Execute chrome junit test
         shell: bash
