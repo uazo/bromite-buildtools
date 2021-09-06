@@ -166,6 +166,15 @@ jobs:
           cd $WORKSPACE/chromium/src
           tools/autotest.py -C out/bromite/ --run-all components/bookmarks --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
 
+      - name: Restart Android Emulator
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+
+          pkill -f qemu-system-x86
+          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
+
       - name: Execute gtests components/download
         shell: bash
         run: |
@@ -187,15 +196,13 @@ jobs:
           cd $WORKSPACE/chromium/src
           out/bromite/bin/run_content_browsertests -v --fast-local-dev || KO=1
 
-      - name: Wait forever
-        shell: bash
-        run: |
-          sleep infinity
+      #- name: Wait forever
+      #  shell: bash
+      #  run: |
+      #    sleep infinity
 
       - name: Copy results
         shell: bash
         run: |
-          test -d $ARTIFACS_DIR/test_results && rm -rf $ARTIFACS_DIR/test_results
-          mkdir $ARTIFACS_DIR/test_results
-          cp -r $WORKSPACE/chromium/src/out/bromite/TEST_RESULTS* $ARTIFACS_DIR/test_results
+          sudo cp -r $WORKSPACE/chromium/src/out/bromite/TEST_RESULTS* $WORKSPACE/chromium/src/out/tests/
 
