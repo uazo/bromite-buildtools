@@ -47,8 +47,8 @@ jobs:
         WORKSPACE: /home/lg/working_dir
         ARTIFACS_DIR: /home/lg/working_dir/artifacs
       volumes:
-        #- /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /storage/images/${{ github.event.inputs.sha }}/out:/home/lg/working_dir/chromium/src/out/bromite:r
+        - /storage/images/${{ github.event.inputs.sha }}/out/tests:/home/lg/working_dir/chromium/src/out/tests
       options: --device=/dev/kvm
         
     steps:    
@@ -64,7 +64,8 @@ jobs:
           #mkdir -p out/bromite
           #cp -arp $ARTIFACS_DIR/out/* out/bromite
           
-          mkdir -p out/tests
+          rm -rf out/tests/*
+          #mkdir -p out/tests
           
           # reset proxy env
           #HTTP_PROXY=
