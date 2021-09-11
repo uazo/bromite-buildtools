@@ -294,11 +294,14 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          autoninja -j $GOMAJOBS -C out/bromite chrome_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite components_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite content_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite base_junit_tests
-          autoninja -j $GOMAJOBS -C out/bromite ui_junit_tests
+          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
+          if [[ TEST -eq 1 ]]; then
+            autoninja -j $GOMAJOBS -C out/bromite chrome_junit_tests
+            autoninja -j $GOMAJOBS -C out/bromite components_junit_tests
+            autoninja -j $GOMAJOBS -C out/bromite content_junit_tests
+            autoninja -j $GOMAJOBS -C out/bromite base_junit_tests
+            autoninja -j $GOMAJOBS -C out/bromite ui_junit_tests
+          fi
           
       - name: Build c++ tests
         shell: bash
@@ -306,19 +309,26 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          autoninja -j $GOMAJOBS -C out/bromite network_service
-          autoninja -j $GOMAJOBS -C out/bromite unit_tests
-          autoninja -j $GOMAJOBS -C out/bromite content_browsertests
-          autoninja -j $GOMAJOBS -C out/bromite components_unittests
-          autoninja -j $GOMAJOBS -C out/bromite components_browsertests
+          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
+          if [[ TEST -eq 1 ]]; then
+            autoninja -j $GOMAJOBS -C out/bromite network_service
+            autoninja -j $GOMAJOBS -C out/bromite unit_tests
+            autoninja -j $GOMAJOBS -C out/bromite content_browsertests
+            autoninja -j $GOMAJOBS -C out/bromite components_unittests
+            autoninja -j $GOMAJOBS -C out/bromite components_browsertests
+          fi
           
       - name: Build instrumentation tests
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          autoninja -j $GOMAJOBS -C out/bromite content_shell_test_apk
-          autoninja -j $GOMAJOBS -C out/bromite chrome_public_test_apk
+          
+          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
+          if [[ TEST -eq 1 ]]; then
+            autoninja -j $GOMAJOBS -C out/bromite content_shell_test_apk
+            autoninja -j $GOMAJOBS -C out/bromite chrome_public_test_apk
+          fi
 
       - name: Sync out folder
         shell: bash
