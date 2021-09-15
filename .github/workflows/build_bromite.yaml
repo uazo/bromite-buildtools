@@ -206,6 +206,11 @@ jobs:
           export GOMA_USE_LOCAL=false
           export GOMA_FALLBACK=true
           export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
+          
+          sudo mkdir -p /run/user/1000/
+          sudo chown lg /run/user/1000/
+          sudo chmod g-rxw /run/user/1000/
+          sudo chmod o-rxw /run/user/1000/
 
           # start goma client
           [[ "$USEGOMA" = "true" ]] && \
