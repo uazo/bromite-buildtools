@@ -25,6 +25,7 @@ on:
         
 env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
+  USEGOMA: ${{ github.event.inputs.usegoma }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
   GOMAJOBS: 60
@@ -207,7 +208,7 @@ jobs:
           export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
 
           # start goma client
-          [[ "${{ inputs.usegoma }}" = "true ]] && \
+          [[ "$USEGOMA" = "true" ]] && \
               echo "::group::-------- start goma client" && \
               $WORKSPACE/goma/goma_ctl.py ensure_stop && \
               $WORKSPACE/goma/goma_ctl.py ensure_start && \
@@ -227,7 +228,7 @@ jobs:
              echo "::endgroup::"
 
              echo "::group::-------- gn gen"
-             [[ "${{ inputs.usegoma }}" = "true" ]] && \
+             [[ "$USEGOMA" = "true" ]] && \
                 gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
                 || \
                 gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") $(cat ../../build_args.gni) " out/bromite              
@@ -251,7 +252,7 @@ jobs:
           fi
 
           echo "::group::-------- pre-cache toolchain"
-          [[ "${{ inputs.usegoma }}" = "true" ]] && \
+          [[ "$USEGOMA" = "true" ]] && \
             sudo ../../casupload --cas-server=unix:/tmp/proxy/bots.sock --instance=default_instance \
                     third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
                     third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/include \
@@ -268,14 +269,13 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          [[ "${{ inputs.usegoma }}" = "true" ]] && \
+          [[ "$USEGOMA" = "true" ]] && \
             autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk \
             || \
             autoninja -C out/bromite chrome_public_apk
 
       - name: Get goma logs
         shell: bash
-        if: ${{ inputs.usegoma }} = "true"
         run: |
           # reset proxy env
           HTTP_PROXY=
@@ -283,7 +283,8 @@ jobs:
           http_proxy=
           https_proxy=
           
-          wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
+           [[ "$USEGOMA" = "true" ]] &&
+            wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
           
       - name: Generate breakpad symbols
         shell: bash
@@ -359,7 +360,6 @@ jobs:
           
       - name: Stop goma
         shell: bash
-        if: ${{ inputs.usegoma }} = "true"
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
