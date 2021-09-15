@@ -189,6 +189,15 @@ jobs:
           cd $WORKSPACE/chromium/src
           tools/autotest.py -C out/bromite/ --run-all components/history --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
 
+      - name: Restart Android Emulator
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+
+          pkill -f qemu-system-x86
+          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
+          
       - name: Execute run_content_browsertests
         shell: bash
         run: |
