@@ -170,6 +170,8 @@ jobs:
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
         WORKSPACE: /home/lg/working_dir
         ARTIFACS_DIR: /home/lg/working_dir/artifacs
+        # compile in debug mode
+        TARGET_ISDEBUG: true 
       volumes:
         - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
         - /tmp/proxy:/tmp/proxy
