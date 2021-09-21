@@ -83,35 +83,7 @@ jobs:
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_chrome_junit_tests | tee out/tests/chrome_junit_tests.log || KO=1
-          
-      - name: Execute components junit test
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_components_junit_tests | tee out/tests/components_junit_tests.log || KO=1
-          
-      - name: Execute content junit test
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_content_junit_tests | tee out/tests/content_junit_tests.log || KO=1
-
-      - name: Execute base junit test
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_base_junit_tests | tee out/tests/base_junit_tests.log || KO=1
-
-      - name: Execute ui junit test
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_ui_junit_tests | tee out/tests/ui_junit_tests.log || KO=1
+          out/bromite/bin/run_chrome_junit_tests --gtest_filter=*Bromite* || KO=1
 
       - name: Start Android Emulator
         shell: bash
@@ -124,86 +96,19 @@ jobs:
           tools/android/avd/avd.py install --avd-config ../../generic_android31.textpb -v
           tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
           
-      - name: Execute gtests components/content_settings
+      - name: Execute unit tests
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/content_settings --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/url_formatter
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/url_formatter --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/crash
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/crash --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/prefs
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/prefs --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/subresource_filter
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/subresource_filter --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/bookmarks
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/bookmarks --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Restart Android Emulator
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-
-          pkill -f qemu-system-x86
-          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
-
-      - name: Execute gtests components/download
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/download --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Execute gtests components/history
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          tools/autotest.py -C out/bromite/ --run-all components/history --dry-run | grep "Running test: " | cut -b 15- | sed -e 's|--gtest_filter|-v --gtest_filter|' | xargs -d\\n -n1 bash -c || KO=1
-
-      - name: Restart Android Emulator
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-
-          pkill -f qemu-system-x86
-          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
+          out/bromite/unit_tests -v --fast-local-dev --gtest_filter=*Bromite* || KO=1
           
-      - name: Execute run_content_browsertests
+      - name: Execute instrumentation tests
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_content_browsertests -v --fast-local-dev || KO=1
+          out/bromite/bin/run_chrome_public_test_apk -v --fast-local-dev --gtest_filter=*Bromite* || KO=1
 
       #- name: Wait forever
       #  shell: bash
