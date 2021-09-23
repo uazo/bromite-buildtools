@@ -208,6 +208,7 @@ jobs:
           export GOMA_USE_LOCAL=false
           export GOMA_FALLBACK=true
           export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
+          export GOMA_MAX_SUBPROCS_LOW=0
           
           sudo mkdir -p /run/user/1000/
           sudo chown lg /run/user/1000/
