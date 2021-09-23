@@ -40,8 +40,8 @@ echo "FILE:$(basename $PATCH)" >>$PATCH_FILE
 echo "---" >>$PATCH_FILE
 echo "$CONTENT" >>$PATCH_FILE
 
-echo press return
-read  -n 1
+#echo press return
+#read  -n 1
 
 git reset --hard
 git clean -f -d
