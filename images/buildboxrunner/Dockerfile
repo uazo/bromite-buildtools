@@ -29,4 +29,6 @@ CMD PATH=.:$PATH &&\
        --cas-remote=unix:/wrk-cache/casd.sock \
        --logstream-remote=unix:/wrk-cache/casd.sock \
        --cas-instance=default_instance \
-       --cas-retry-limit=10
+       --cas-retry-limit=10 \
+       --request-timeout=10 \
+       --verbose
