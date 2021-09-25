@@ -27,6 +27,7 @@ sudo cp $WORKSPACE/goma_auth.py $WORKSPACE/goma/
 echo -e ${RED} -------- prepare vpython virtual environment ${NC}
 rm -rf /tmp/vpython*
 cd $WORKSPACE/chromium/src
+vpython -vpython-spec .vpython -vpython-root $VPYTHON_VIRTUALENV_ROOT -vpython-log-level debug -vpython-tool install
 vpython3 -vpython-spec .vpython3 -vpython-root $VPYTHON_VIRTUALENV_ROOT -vpython-log-level debug -vpython-tool install
 
 echo -e ${RED} -------- download x86_64 android image ${NC}
