@@ -102,7 +102,15 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           out/bromite/unit_tests -v --fast-local-dev --gtest_filter=*Bromite* || KO=1
-          
+
+      - name: Restart Android Emulator
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          pkill -f qemu-system-x86
+          tools/android/avd/avd.py start --avd-config ../../generic_android31.textpb -v
+       
       - name: Execute instrumentation tests
         shell: bash
         run: |
