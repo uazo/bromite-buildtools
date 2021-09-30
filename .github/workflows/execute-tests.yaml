@@ -116,7 +116,7 @@ jobs:
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          out/bromite/bin/run_chrome_public_test_apk -v --fast-local-dev --gtest_filter=*Bromite* || KO=1
+          out/bromite/bin/run_chrome_public_test_apk -v --num-retries=1 --gtest_filter=*Bromite* || KO=1
 
       #- name: Wait forever
       #  shell: bash
