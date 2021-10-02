@@ -12,6 +12,10 @@ NO_NAME=1
 for patch in $ALLPATCHS_E; do
 
 	PATCH_FILE=$(git -C ~/chromium/src/ show -s $patch | grep FILE: | sed 's/FILE://g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+	if [[ "$PATCH_FILE" == *"Automated-domain-substitution"* ]]; then
+		continue
+	fi
+
 	if [ -z "$PATCH_FILE" ]
 	then
 		#git -C ~/chromium/src/ show -s $patch
