@@ -12,7 +12,7 @@ RUN apt-get update &&\
     sudo chmod +x set-perms.sh
 
 CMD sudo rm -rf /wrk-cache/* &&\
-    bash -c "socat UNIX-LISTEN:/wrk-cache/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &" &&\
+    bash -c "socat -t10 UNIX-LISTEN:/wrk-cache/bots.sock,reuseaddr,fork TCP4:$REMOTEEXEC_ADDR &" &&\
     bash -c "$PWD/set-perms.sh &" &&\
     ./buildbox-casd \
        --instance=default_instance \
