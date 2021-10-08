@@ -13,6 +13,7 @@ mkdir -p $GHRUNNERHOME/redis
 sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/tmp/proxy
 sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/tmp/forward-proxy
 sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/redis
+#sudo rm $GHRUNNERHOME/var/run/docker.socks
 #sudo chown $SYSBOX_UID:$SYSBOX_UID $GHRUNNERHOME/docker-inner
 
 docker run --rm -d --runtime=sysbox-runc \
@@ -35,7 +36,9 @@ do
     -v $GHRUNNERHOME/tmp/proxy:/tmp/proxy:rw \
     -v $GHRUNNERHOME/tmp/forward-proxy:/tmp/forward-proxy:rw \
     -v $GHRUNNERHOME/redis:/redis:rw \
+    -v $GHRUNNERHOME/var/run:/var/run \
     --network none \
+    --device=/dev/kvm \
     uazo/github-runner
 
   echo "You can stop now"
