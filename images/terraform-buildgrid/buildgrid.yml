@@ -37,7 +37,7 @@ instances:
     caches:
       - !lru-action-cache &build-cache
         storage: *cas-storage
-        max-cached-refs: 256
+        max-cached-refs: 2560
         cache-failed-actions: true
         allow-updates: true
 
@@ -50,6 +50,7 @@ instances:
         action-cache: *build-cache
         scheduler: *state-database
         max-execution-timeout: 7200
+#        permissive-bot-session: True
 
       - !cas
         storage: *cas-storage
@@ -57,4 +58,4 @@ instances:
       - !bytestream
         storage: *cas-storage
 
-thread-pool-size: 5000
+thread-pool-size: 500
