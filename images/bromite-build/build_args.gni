@@ -21,3 +21,5 @@ if(!(_is_debug_build == "")) {
   symbol_level = 1
   strip_debug_info = false
 }
+
+generate_linker_map = true
