@@ -291,8 +291,10 @@ jobs:
           http_proxy=
           https_proxy=
           
-           [[ "$USEGOMA" = "true" ]] &&
-            wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
+           [[ "$USEGOMA" = "true" ]] && \
+             wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
+           || \
+             echo Skipped.
           
       - name: Generate breakpad symbols
         shell: bash
