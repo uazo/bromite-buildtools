@@ -61,4 +61,5 @@ git config user.name "Your Name"
 echo -e ${RED} -------- running hooks ${NC}
 gclient runhooks
 
-
+echo -e ${RED} -------- download objdump ${NC}
+tools/clang/scripts/update.py --package=objdump
