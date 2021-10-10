@@ -20,6 +20,6 @@ if(!(_is_debug_build == "")) {
   dcheck_always_on = true
   symbol_level = 1
   strip_debug_info = false
+} else {
+   generate_linker_map = true
 }
-
-generate_linker_map = true
