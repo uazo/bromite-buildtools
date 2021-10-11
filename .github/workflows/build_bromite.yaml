@@ -292,7 +292,7 @@ jobs:
           https_proxy=
           
            [[ "$USEGOMA" = "true" ]] && \
-             wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log
+             wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log \
            || \
              echo Skipped.
           
