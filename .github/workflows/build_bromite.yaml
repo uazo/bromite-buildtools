@@ -366,7 +366,7 @@ jobs:
           $WORKSPACE/mtool/chromium/mtime.sh --backup
           mv .mtool out/bromite/
           cp -arp out/bromite $ARTIFACS_DIR/out
-          echo "::endgroup::
+          echo "::endgroup::"
           
       - name: Stop goma
         shell: bash
