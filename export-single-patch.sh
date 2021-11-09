@@ -33,7 +33,7 @@ sed -i '/^old mode /d' ~/bromite/build/patches-new/$PATCH_FILE
 sed -i '/^new mode /d' ~/bromite/build/patches-new/$PATCH_FILE
 
 echo "-- " >> ~/bromite/build/patches-new/$PATCH_FILE
-echo "2.17.1" >> ~/bromite/build/patches-new/$PATCH_FILE
+echo "2.20.1" >> ~/bromite/build/patches-new/$PATCH_FILE
 echo "" >> ~/bromite/build/patches-new/$PATCH_FILE
 
 echo "   done."
