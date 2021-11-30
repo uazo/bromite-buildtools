@@ -210,6 +210,11 @@ jobs:
           export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
           export GOMA_MAX_SUBPROCS_LOW=0
           
+          # set kythe options
+          export KYTHE_CORPUS=chromium.googlesource.com/chromium/src
+          export KYTHE_ROOT_DIRECTORY=$WORKSPACE/chromium/src
+          export KYTHE_OUTPUT_DIRECTORY=$WORKSPACE/chromium/src/out/bromite/kythe
+
           sudo mkdir -p /run/user/1000/
           sudo chown lg /run/user/1000/
           sudo chmod g-rxw /run/user/1000/
@@ -314,6 +319,24 @@ jobs:
           cp out/bromite/dump_syms $ARTIFACS_DIR/symbols
           echo "::endgroup::"
 
+      - name: Generate kythe index
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
+          #python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json
+          #gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
+          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all
+          #python ~/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS
+          #$WORKSPACE/package_index/latest/package_index \
+          #  --checkout_dir $WORKSPACE/chromium/src \
+          #  --path_to_compdb out/bromite/compile_commands.json \
+	        #  --path_to_gn_targets out/bromite/gn_targets.json \
+          #  --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
+	        #  --path_to_archive_output out/bromite/chromium_linux.kzip \
+          #  --corpus $KYTHE_CORPUS
+            
       - name: Build junit tests
         shell: bash
         run: |
