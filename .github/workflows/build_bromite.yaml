@@ -332,9 +332,9 @@ jobs:
           #$WORKSPACE/package_index/latest/package_index \
           #  --checkout_dir $WORKSPACE/chromium/src \
           #  --path_to_compdb out/bromite/compile_commands.json \
-	  #  --path_to_gn_targets out/bromite/gn_targets.json \
+          #  --path_to_gn_targets out/bromite/gn_targets.json \
           #  --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
-	  #  --path_to_archive_output out/bromite/chromium_linux.kzip \
+          #  --path_to_archive_output out/bromite/chromium_linux.kzip \
           #  --corpus $KYTHE_CORPUS
             
       - name: Build junit tests
