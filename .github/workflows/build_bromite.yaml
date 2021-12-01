@@ -319,13 +319,16 @@ jobs:
           gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
           python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
           python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
+          
+          cd ..
           /home/lg/package_index/latest/package_index \
-            --checkout_dir $WORKSPACE/chromium/src \
-            --path_to_compdb out/bromite/compile_commands.json \
-            --path_to_gn_targets out/bromite/gn_targets.json \
+            --checkout_dir src \
+            --path_to_compdb src/out/bromite/compile_commands.json \
+            --path_to_gn_targets src/out/bromite/gn_targets.json \
             --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
-            --path_to_archive_output out/bromite/chromium_linux.kzip \
+            --path_to_archive_output src/out/bromite/chromium_linux.kzip \
             --corpus $KYTHE_CORPUS \
+            --out_dir src/out/bromite \
             --keep_filepaths_files || true
             
       - name: Build junit tests
