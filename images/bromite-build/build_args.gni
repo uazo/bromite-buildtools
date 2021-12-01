@@ -11,10 +11,12 @@ not_needed(["_target_build", "_is_debug_build"])
 if(getenv("TARGET_CPU") != "") {
   target_cpu = getenv("TARGET_CPU")
 }
-print("Target " + target_cpu)
+# print("Target " + target_cpu)
+
+enable_kythe_annotations = true
 
 if(!(_is_debug_build == "")) {
-  print("Debug build on")
+# print("Debug build on")
   is_debug = true
   is_official_build = false
   dcheck_always_on = true
