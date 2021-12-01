@@ -209,6 +209,7 @@ jobs:
           export KYTHE_CORPUS=chromium.googlesource.com/chromium/src
           export KYTHE_ROOT_DIRECTORY=$WORKSPACE/chromium/src
           export KYTHE_OUTPUT_DIRECTORY=$WORKSPACE/chromium/src/out/bromite/kythe
+          mkdir -p $WORKSPACE/chromium/src/out/bromite/kythe
 
           sudo mkdir -p /run/user/1000/
           sudo chown lg /run/user/1000/
