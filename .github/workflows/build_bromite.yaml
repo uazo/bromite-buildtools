@@ -169,6 +169,9 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
         WORKSPACE: /home/lg/working_dir
+        KYTHE_CORPUS: chromium.googlesource.com/chromium/src
+        KYTHE_ROOT_DIRECTORY: /home/lg/working_dir/chromium/src
+        KYTHE_OUTPUT_DIRECTORY: /home/lg/working_dir/chromium/src/out/bromite/kythe
         # compile in debug mode
         TARGET_ISDEBUG: true 
       volumes:
@@ -205,11 +208,8 @@ jobs:
           export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
           export GOMA_MAX_SUBPROCS_LOW=0
           
-          # set kythe options
-          export KYTHE_CORPUS=chromium.googlesource.com/chromium/src
-          export KYTHE_ROOT_DIRECTORY=$WORKSPACE/chromium/src
-          export KYTHE_OUTPUT_DIRECTORY=$WORKSPACE/chromium/src/out/bromite/kythe
-          mkdir -p $WORKSPACE/chromium/src/out/bromite/kythe
+          # make kythe output directory
+          test -d $KYTHE_OUTPUT_DIRECTORY || mkdir -p $KYTHE_OUTPUT_DIRECTORY
 
           sudo mkdir -p /run/user/1000/
           sudo chown lg /run/user/1000/
