@@ -299,8 +299,6 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          cp out/bromite/apks/* $WORKSPACE/artifacs/
-
           echo "::group::-------- generating breakpad symbols"
           autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
           components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
