@@ -169,11 +169,10 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
         WORKSPACE: /home/lg/working_dir
-        ARTIFACS_DIR: /home/lg/working_dir/artifacs
         # compile in debug mode
         TARGET_ISDEBUG: true 
       volumes:
-        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/artifacs
+        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
         - /tmp/proxy:/tmp/proxy
         
     steps:    
@@ -183,10 +182,6 @@ jobs:
           # set workspace paths
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE
-          
-          # clean artifacts
-          sudo chmod 777 $ARTIFACS_DIR
-          rm -rf $ARTIFACS_DIR/*
 
           # reset proxy env
           HTTP_PROXY=
@@ -231,14 +226,8 @@ jobs:
           cd chromium/src
 
           OUT_PRESENT=0
-          test -d out/bromite && OUT_PRESENT=1
+          test -f out/bromite/prepare_gn && OUT_PRESENT=1
           if [[ OUT_PRESENT -eq 0 ]]; then
-
-             echo "::group::-------- sync out folder"
-             test -d $ARTIFACS_DIR/out/bromite && \
-                mkdir -p out/bromite && \
-                cp -arp $ARTIFACS_DIR/out/bromite/* out/bromite/
-             echo "::endgroup::"
 
              echo "::group::-------- gn gen"
              [[ "$USEGOMA" = "true" ]] && \
@@ -249,7 +238,7 @@ jobs:
 
              echo "::group::-------- gn args"
              gn args out/bromite/ --list --short
-             gn args out/bromite/ --list >$ARTIFACS_DIR/gn_list
+             gn args out/bromite/ --list >out/bromite/gn_list
              echo "::endgroup::"
 
              echo "::group::-------- apply .mtool"
@@ -257,6 +246,8 @@ jobs:
                 cp out/bromite/.mtool .mtool && \
                 $WORKSPACE/mtool/chromium/mtime.sh --restore
              echo "::endgroup::"
+             
+             echo "OK" >out/bromite/prepare_gn
 
           fi
 
@@ -297,7 +288,7 @@ jobs:
           https_proxy=
           
            [[ "$USEGOMA" = "true" ]] && \
-             wget http://127.0.0.1:8088/logz?INFO -O $ARTIFACS_DIR/goma-client.log \
+             wget http://127.0.0.1:8088/logz?INFO -O out/bromite/goma-client.log \
            || \
              echo Skipped.
           
@@ -312,11 +303,11 @@ jobs:
           echo "::group::-------- generating breakpad symbols"
           autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
           components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
-             --symbols-dir=$ARTIFACS_DIR/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so \
+             --symbols-dir=out/bromite/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so \
              --platform=android --clear --verbose
-          cp out/bromite/lib.unstripped/libchrome.so $ARTIFACS_DIR/symbols/libchrome.lib.so
-          cp out/bromite/minidump_stackwalk $ARTIFACS_DIR/symbols
-          cp out/bromite/dump_syms $ARTIFACS_DIR/symbols
+          cp out/bromite/lib.unstripped/libchrome.so out/bromite/symbols/libchrome.lib.so
+          cp out/bromite/minidump_stackwalk out/bromite/symbols
+          cp out/bromite/dump_syms out/bromite/symbols
           echo "::endgroup::"
 
       - name: Generate kythe index
@@ -327,8 +318,8 @@ jobs:
           
           python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json
           gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
-          python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all
-          python ~/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS
+          python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
+          python ~/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
           $WORKSPACE/package_index/latest/package_index \
             --checkout_dir $WORKSPACE/chromium/src \
             --path_to_compdb out/bromite/compile_commands.json \
@@ -336,7 +327,7 @@ jobs:
             --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
             --path_to_archive_output out/bromite/chromium_linux.kzip \
             --corpus $KYTHE_CORPUS \
-            --keep_filepaths_files
+            --keep_filepaths_files || true
             
       - name: Build junit tests
         shell: bash
@@ -379,18 +370,6 @@ jobs:
             autoninja -j $GOMAJOBS -C out/bromite content_shell_test_apk
             autoninja -j $GOMAJOBS -C out/bromite chrome_public_test_apk
           fi
-
-      - name: Sync out folder
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-
-          echo "::group::-------- sync out folder"
-          $WORKSPACE/mtool/chromium/mtime.sh --backup
-          mv .mtool out/bromite/
-          cp -arp out/bromite $ARTIFACS_DIR/out
-          echo "::endgroup::"
           
       - name: Stop goma
         shell: bash
