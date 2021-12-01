@@ -318,8 +318,8 @@ jobs:
           python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json
           gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
           python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
-          python $WORKSPACE/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
-          $WORKSPACE/package_index/latest/package_index \
+          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
+          /home/lg/package_index/latest/package_index \
             --checkout_dir $WORKSPACE/chromium/src \
             --path_to_compdb out/bromite/compile_commands.json \
             --path_to_gn_targets out/bromite/gn_targets.json \
