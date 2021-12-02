@@ -317,8 +317,10 @@ jobs:
           
           python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
           gn desc out/bromite/ '//chrome/android:chrome_public_apk' --format=json --all >out/bromite/gn_targets.json
-          python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
-          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
+          
+          # do not include mojom files
+          # python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
+          # python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
           
           cd ..
           /home/lg/package_index/latest/package_index \
