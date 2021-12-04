@@ -209,7 +209,7 @@ jobs:
           export GOMA_MAX_SUBPROCS_LOW=0
           
           # make kythe output directory
-          test -d $KYTHE_OUTPUT_DIRECTORY || mkdir -p $KYTHE_OUTPUT_DIRECTORY
+          test -d $KYTHE_OUTPUT_DIRECTORY || sudo mkdir -p $KYTHE_OUTPUT_DIRECTORY
 
           sudo mkdir -p /run/user/1000/
           sudo chown lg /run/user/1000/
