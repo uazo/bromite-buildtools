@@ -284,6 +284,13 @@ jobs:
             || \
             autoninja -C out/bromite chrome_public_apk
 
+      - name: Get ninja logs
+        shell: bash
+        run: |
+          cd $WORKSPACE
+          ~/ninjatracing/ninjatracing ~/chromium/src/out/bromite/.ninja_log >~/chromium/src/out/bromite/ninja_log_trace.json
+          ~/chromium/src/third_party/catapult/tracing/bin/trace2html ~/chromium/src/out/bromite/ninja_log_trace.json
+        
       - name: Get goma logs
         shell: bash
         run: |
