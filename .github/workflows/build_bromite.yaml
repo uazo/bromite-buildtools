@@ -327,12 +327,13 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
-          gn desc out/bromite/ '//chrome/android:chrome_public_apk' --format=json --all >out/bromite/gn_targets.json
+          #python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
+          ninja -C out/bromite chrome_public_apk -t compdb cc cxx objc objcxx >out/bromite/compile_commands.json
+          gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
           
-          # do not include mojom files
-          # python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
-          # python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
+          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
+          tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite || true
+          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
           
           cd ..
           /home/lg/package_index/latest/package_index \
@@ -342,8 +343,7 @@ jobs:
             --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
             --path_to_archive_output src/out/bromite/chromium_linux.kzip \
             --corpus $KYTHE_CORPUS \
-            --out_dir src/out/bromite \
-            --keep_filepaths_files || true
+            --out_dir src/out/bromite || true
             
       - name: Build junit tests
         shell: bash
