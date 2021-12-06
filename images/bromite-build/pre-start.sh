@@ -14,6 +14,9 @@ cd mtool
 make
 cd ..
 
+echo -e ${RED} -------- download ninjatracing ${NC}
+git clone https://github.com/nico/ninjatracing
+
 mkdir $CIPD_CACHE_DIR
 mkdir $VPYTHON_VIRTUALENV_ROOT
 
