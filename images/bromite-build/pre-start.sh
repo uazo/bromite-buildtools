@@ -38,4 +38,7 @@ echo -e ${RED} -------- download kythe resources ${NC}
 wget https://chromium.googlesource.com/chromium/tools/build/+/main/recipes/recipe_modules/codesearch/resources/add_kythe_metadata.py?format=TEXT -O ~/add_kythe_metadata.py.base64
 base64 -d ~/add_kythe_metadata.py.base64 >~/add_kythe_metadata.py
 echo -e "infra/tools/package_index/linux-amd64 latest" | .cipd_client ensure -ensure-file - -root ~/package_index/latest
-python tools/clang/scripts/update.py --package=translation_unit
+
+# removed since fail download with
+# https://commondatastorage.9oo91eapis.qjz9zk/chromium-browser-clang/Linux_x64/translation_unit-llvmorg-14-init-5759-g02895eed-1.tgz 
+# python tools/clang/scripts/update.py --package=translation_unit
