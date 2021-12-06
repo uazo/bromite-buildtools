@@ -48,4 +48,4 @@ tar xfz kythe-v0.0.55.tar.gz
 
 # removed since fail download with
 # https://commondatastorage.9oo91eapis.qjz9zk/chromium-browser-clang/Linux_x64/translation_unit-llvmorg-14-init-5759-g02895eed-1.tgz 
-# python tools/clang/scripts/update.py --package=translation_unit
+python tools/clang/scripts/update.py --package=translation_unit
