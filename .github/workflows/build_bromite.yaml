@@ -321,7 +321,7 @@ jobs:
           cp out/bromite/dump_syms out/bromite/symbols
           echo "::endgroup::"
 
-      - name: Generate kythe index
+      - name: Generate kythe kzip
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
@@ -329,22 +329,21 @@ jobs:
           
           #python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
           ninja -C out/bromite chrome_public_apk -t compdb cc cxx objc objcxx >out/bromite/compile_commands.json
-          gn desc out/bromite/ '*' --format=json >out/bromite/gn_targets.json
+          gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
           
           #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
           tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite || true
           python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
-          
-          cd ..
+
           /home/lg/package_index/latest/package_index \
-            --checkout_dir src \
-            --path_to_compdb src/out/bromite/compile_commands.json \
-            --path_to_gn_targets src/out/bromite/gn_targets.json \
+            --checkout_dir /home/lg/working_dir/chromium/src \
+            --path_to_compdb /home/lg/working_dir/chromium/src/out/bromite/compile_commands.json \
+            --path_to_gn_targets /home/lg/working_dir/chromium/src/out/bromite/gn_targets.json \
             --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
-            --path_to_archive_output src/out/bromite/chromium_linux.kzip \
+            --path_to_archive_output /home/lg/working_dir/chromium/src/out/bromite/chromium_linux.kzip \
             --corpus $KYTHE_CORPUS \
             --out_dir src/out/bromite || true
-            
+                      
       - name: Build junit tests
         shell: bash
         run: |
