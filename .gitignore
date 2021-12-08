@@ -5,3 +5,4 @@
 /.vs
 images/github-runner/.env
 images/privoxy/privoxy.conf.save
+images/remote-index/bromite.idx
