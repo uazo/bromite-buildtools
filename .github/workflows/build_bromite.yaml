@@ -288,8 +288,8 @@ jobs:
         shell: bash
         run: |
           cd $WORKSPACE
-          ~/ninjatracing/ninjatracing ~/chromium/src/out/bromite/.ninja_log >~/chromium/src/out/bromite/ninja_log_trace.json
-          ~/chromium/src/third_party/catapult/tracing/bin/trace2html ~/chromium/src/out/bromite/ninja_log_trace.json
+          $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite/.ninja_log >$WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
+          $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
         
       - name: Get goma logs
         shell: bash
