@@ -345,7 +345,14 @@ jobs:
             --path_to_archive_output /home/lg/working_dir/chromium/src/out/bromite/chromium_linux.kzip \
             --corpus $KYTHE_CORPUS \
             --out_dir src/out/bromite || true
-                      
+
+      - name: Generate clangd index
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
+          
       - name: Build junit tests
         shell: bash
         run: |
