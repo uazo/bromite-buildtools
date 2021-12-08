@@ -1,0 +1,121 @@
+From: uazo <uazo@users.noreply.github.com>
+Date: Wed, 8 Dec 2021 11:08:45 +0000
+Subject: Allow 'ninja -t compdb' accept one target
+
+---
+ src/ninja.cc | 64 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 61 insertions(+), 3 deletions(-)
+
+diff --git a/src/ninja.cc b/src/ninja.cc
+index ed004ac8f1fe1a5107db8b1f5c02c4ba957daef4..bbb79da561ddec497863230cd99ffbe98b9a76e5 100644
+--- a/src/ninja.cc
++++ b/src/ninja.cc
+@@ -17,6 +17,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <unordered_set>
+ 
+ #ifdef _WIN32
+ #include "getopt.h"
+@@ -73,6 +74,8 @@ struct Options {
+ 
+   /// Whether phony cycles should warn or print an error.
+   bool phony_cycle_should_err;
++
++  const char* user_given_target;
+ };
+ 
+ /// The Ninja main() loads up a series of data structures; various tools need
+@@ -211,6 +214,7 @@ void Usage(const BuildConfig& config) {
+ "  -l N     do not start new jobs if the load average is greater than N\n"
+ "  -n       dry run (don't run commands but act like they succeeded)\n"
+ "  -v       show all command lines while building\n"
++"  -a       generate compilation database for given target\n"
+ "\n"
+ "  -d MODE  enable debugging (use -d list to list modes)\n"
+ "  -t TOOL  run a subtool (use -t list to list subtools)\n"
+@@ -662,7 +666,56 @@ void EncodeJSONString(const char *str) {
+   }
+ }
+ 
++bool GetAllDependentEdges(Node* node, std::vector<Edge*>* depend_edges,
++                          std::unordered_set<Node*>* visited_nodes=NULL,
++                          std::unordered_set<Edge*>* visited_edges=NULL) {
++  if (visited_nodes == NULL || visited_edges == NULL) {
++    std::unordered_set<Node*> visited_nodes_;
++    std::unordered_set<Edge*> visited_edges_;
++    return GetAllDependentEdges(node, depend_edges, &visited_nodes_, &visited_edges_);
++  }
++  if (node == NULL || depend_edges == NULL) {
++    Error("Internal error");
++    return false;
++  }
++  if (visited_nodes->count(node)) {
++    return true;
++  } else {
++    visited_nodes->insert(node);
++  }
++  Edge* edge = node->in_edge();
++  // Leaf node
++  if (!edge || visited_edges->count(edge)) {
++    return true;
++  } else {
++    visited_edges->insert(edge);
++    depend_edges->push_back(edge);
++  }
++  for (Node* input_node : edge->inputs_) {
++    if (!GetAllDependentEdges(input_node, depend_edges, visited_nodes, visited_edges))
++      return false;
++  }
++  return true;
++}
++
+ int NinjaMain::ToolCompilationDatabase(const Options* options, int argc, char* argv[]) {
++  std::vector<Edge*>* edges_to_process = &(state_.edges_);
++
++  if (options->user_given_target) {
++    string err;
++    Node* user_given_target = CollectTarget(
++      options->user_given_target, &err);
++    if (!err.empty()) {
++      Error("%s: %s", options->user_given_target, err.c_str());
++      return 1;
++    }
++
++    std::vector<Edge*> user_interested_edges;
++    if (!GetAllDependentEdges(user_given_target, &user_interested_edges))
++      return 1;
++    edges_to_process = &user_interested_edges;
++  }
++
+   bool first = true;
+   vector<char> cwd;
+ 
+@@ -676,8 +729,8 @@ int NinjaMain::ToolCompilationDatabase(const Options* options, int argc, char* a
+   }
+ 
+   putchar('[');
+-  for (vector<Edge*>::iterator e = state_.edges_.begin();
+-       e != state_.edges_.end(); ++e) {
++  for (vector<Edge*>::iterator e = edges_to_process->begin();
++       e != edges_to_process->end(); ++e) {
+     if ((*e)->inputs_.empty())
+       continue;
+     for (int i = 0; i != argc; ++i) {
+@@ -1047,9 +1100,14 @@ int ReadFlags(int* argc, char*** argv,
+ 
+   int opt;
+   while (!options->tool &&
+-         (opt = getopt_long(*argc, *argv, "d:f:j:k:l:nt:vw:C:h", kLongOptions,
++         (opt = getopt_long(*argc, *argv, "a:d:f:j:k:l:nt:vw:C:h", kLongOptions,
+                             NULL)) != -1) {
+     switch (opt) {
++      case 'a':
++        options->user_given_target = optarg;
++        if (!options->user_given_target)
++          Fatal("Expecting one target name");
++        break;
+       case 'd':
+         if (!DebugEnable(optarg))
+           return 1;
