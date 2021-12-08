@@ -60,3 +60,9 @@ git clone https://github.com/ninja-build/ninja.git -b v1.8.2
 cd ninja
 git apply $WORKSPACE/bromite-buildtools/ninja-one-target-for-compdb.patch
 ./configure.py --bootstrap
+
+echo -e ${RED} -------- download clang indexer ${NC}
+cd $WORKSPACE/
+wget https://github.com/clangd/clangd/releases/download/snapshot_20211205/clangd_indexing_tools-linux-snapshot_20211205.zip
+unzip clangd_indexing_tools-linux-snapshot_20211205.zip
+rm clangd_indexing_tools-linux-snapshot_20211205.zip
