@@ -328,7 +328,9 @@ jobs:
           cd $WORKSPACE/chromium/src
           
           #python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
-          ninja -C out/bromite chrome_public_apk -t compdb cc cxx objc objcxx >out/bromite/compile_commands.json
+          #ninja -C out/bromite chrome_public_apk -t compdb cc cxx objc objcxx >out/bromite/compile_commands.json
+          $WORKSPACE/ninja/ninja -C $WORKSPACE/chromium/src/out/bromite -a chrome_public_apk \
+            -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
           gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
           
           #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
