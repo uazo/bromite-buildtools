@@ -9,6 +9,15 @@ OK=0
 DOBUILD=1
 DOEXPORT=1
 
+TEST=0
+git log | grep FILE:$(basename -- $PATCH) && TEST=1
+if [[ TEST -eq 1 ]]; then
+
+        echo "Patch $PATCH already exists. skipped." | tee -a ${LOG_FILE}
+        exit 0
+
+fi
+
 echo "" | tee -a ${LOG_FILE}
 echo "Applying patch $PATCH" | tee -a ${LOG_FILE}
 git apply --reject --whitespace=fix $PATCH && OK=1
@@ -51,12 +60,12 @@ fi
 
 if [[ DOBUILD -eq 1 ]]; then
 	OK=0
-	echo "Building ${PATCH}: chrome_public_apk" | tee -a ${LOG_FILE}
-	date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
-	autoninja -C out/arm64 chrome_public_apk && OK=1
-	date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
+	#echo "Building ${PATCH}: chrome_public_apk" | tee -a ${LOG_FILE}
+	#date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
+	#autoninja -C out/arm64 chrome_public_apk && OK=1
+	#date "+%Y%m%d %H.%M.%S" | tee -a ${LOG_FILE}
 
-	DOEXPORT=1
+	#DOEXPORT=1
 
 fi
 
@@ -68,5 +77,26 @@ if [[ OK -eq 0 ]]; then
 fi
 
 if [[ DOEXPORT -eq 1 ]]; then
-    bash ~/bromite-buildtools/create-from-patch.sh $PATCH $2
+	until false
+	do
+       bash ~/bromite-buildtools/create-from-patch.sh $PATCH $2
+
+	   rm /tmp/1 /tmp/2 || true
+	   lsdiff $PATCH >/tmp/1
+	   lsdiff ../../bromite/build/patches-new/$(basename -- $PATCH) >/tmp/2
+	   STATUS="$(cmp --silent /tmp/1 /tmp/2; echo $?)"
+	   if [[ $STATUS -ne 0 ]]; then
+          git reset HEAD^
+		  diff /tmp/1 /tmp/2
+		  echo "Some files are missing. Check again." | tee -a ${LOG_FILE}
+		  read -r -p "y to continue [y/N] " response
+		  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+		       bash ~/bromite-buildtools/create-from-patch.sh $PATCH $2
+			   break
+		  fi
+	      bash
+	   else
+	      break
+	   fi
+	done
 fi
