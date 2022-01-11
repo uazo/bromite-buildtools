@@ -1,0 +1,12 @@
+diff --git a/ninjalog_uploader_wrapper.py b/ninjalog_uploader_wrapper.py
+index fbfca3f2..3cd9e9b1 100755
+--- a/ninjalog_uploader_wrapper.py
++++ b/ninjalog_uploader_wrapper.py
+@@ -75,6 +75,7 @@ You can find a more detailed explanation in
+
+
+ def main():
++  return 0
+   config = LoadConfig()
+
+   if len(sys.argv) == 2 and sys.argv[1] == 'opt-in':
