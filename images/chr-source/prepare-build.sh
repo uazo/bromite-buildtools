@@ -11,6 +11,7 @@ git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 echo -e ${RED} -------- apply depot_tools patch ${NC}
 cd depot_tools/
 git apply ../depot_tools.diff
+git apply ../remove_ninja_uploader.diff
 cd ..
 
 echo -e ${RED} -------- set envs ${NC}
