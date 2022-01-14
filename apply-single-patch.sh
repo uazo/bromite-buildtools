@@ -101,7 +101,6 @@ if [[ DOEXPORT -eq 1 ]]; then
                        bash ~/bromite-buildtools/create-from-patch.sh $PATCH $2 || exit 1
                        break
                   fi
-              bash
            else
               break
            fi
