@@ -269,6 +269,8 @@ jobs:
              echo "OK" >out/bromite/prepare_gn
 
           fi
+          
+          cp ../../bromite/build/RELEASE out/bromite
 
           if [[ -z "${GOMAJOBS}" ]]; then
               GOMAJOBS=40
