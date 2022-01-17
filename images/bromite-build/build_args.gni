@@ -16,7 +16,7 @@ if(getenv("TARGET_CPU") != "") {
 enable_kythe_annotations = true
 clang_use_chrome_plugins = false
 
-if(!(_is_debug_build == "")) {
+if(_is_debug_build == "true") {
 # print("Debug build on")
   is_debug = true
   is_official_build = false
