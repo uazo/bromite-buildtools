@@ -55,7 +55,7 @@ jobs:
       - name: Checkout 'uazo/buildtools'
         uses: actions/checkout@v2
         with:
-            repository: 'uazo/buildtools'
+            repository: 'uazo/bromite-buildtools'
             #ref: ${{ github.event.inputs.rtag }}
             path: 'bromite'
             fetch-depth: 1
