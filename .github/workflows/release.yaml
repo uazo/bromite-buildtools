@@ -1,16 +1,5 @@
 name: Release Bromite CI
-permissions:
-  actions: none
-  checks: none
-  contents: none
-  deployments: none
-  issues: none
-  packages: none
-  pull-requests: none
-  repository-projects: none
-  security-events: none
-  statuses: none
-      
+     
 on:
   workflow_dispatch:
     inputs:
@@ -45,8 +34,6 @@ env:
 jobs:
   release:
     runs-on: ${{ github.event.inputs.type }}
-    needs: build
-    if: success()
     env:
       OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}/apks/ChromePublic.apk
         
