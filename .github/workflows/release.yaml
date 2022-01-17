@@ -55,7 +55,7 @@ jobs:
           wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
           tar xfz gh_2.4.0_linux_amd64.tar.gz
           
-          echo $GITHUB_TOKEN | gh_2.4.0_linux_amd64/bin/gh auth login --with-token
+          echo ${{ secrets.GITHUB_TOKEN }} | gh_2.4.0_linux_amd64/bin/gh auth login --with-token
           
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
           gh_2.4.0_linux_amd64/bin/gh release create $VERSION \
