@@ -52,11 +52,11 @@ jobs:
           wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
           tar xfz gh_2.4.0_linux_amd64.tar.gz
 
-      - name: Checkout 'uazo/bromite' ${{ env.BRANCH }}
+      - name: Checkout 'uazo/buildtools'
         uses: actions/checkout@v2
         with:
-            repository: 'uazo/bromite'
-            ref: ${{ github.event.inputs.rtag }}
+            repository: 'uazo/buildtools'
+            #ref: ${{ github.event.inputs.rtag }}
             path: 'bromite'
             fetch-depth: 1
             
