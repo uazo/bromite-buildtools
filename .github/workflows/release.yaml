@@ -56,7 +56,7 @@ jobs:
         run: |
           sudo cp ${{ env.OUTPUTFILE }} ChromePublic.apk
           sudo chown runner ChromePublic.apk
-          rm ChromePublic.apk $APK
+          mv ChromePublic.apk $APK
 
       - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
         uses: softprops/action-gh-release@v1
