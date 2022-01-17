@@ -297,11 +297,11 @@ jobs:
             || \
             autoninja -C out/bromite chrome_public_apk
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          files: /home/lg/working_dir/chromium/src/out/bromite/apks/ChromePublic.apk
+      #- name: Release
+      #  uses: softprops/action-gh-release@v1
+      #  with:
+      #    draft: true
+      #    files: /home/lg/working_dir/chromium/src/out/bromite/apks/ChromePublic.apk
           
       - name: Get ninja logs
         shell: bash
