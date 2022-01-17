@@ -1,0 +1,68 @@
+name: Release Bromite CI
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+      
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'uazo/bromite SHA'
+        required: true
+        default: '0a8ff322d6e9d738f7b2fa52618b178081bd100d'
+      build:
+        description: 'arch [arm64/x64]'
+        required: true
+        default: 'x64'
+      type:
+        description: 'runner? [dev/ci]'
+        required: true
+        default: 'ci'
+      debug:
+        description: 'debug? [true/false]'
+        required: true
+        default: 'false'
+      usegoma:
+        description: 'Use goma? [true/false]'
+        required: true
+        default: 'false'
+        
+env:
+  BROMITE_SHA: ${{ github.event.inputs.sha }}
+  USEGOMA: ${{ github.event.inputs.usegoma }}
+  REMOVEDOCKERSUPPORT: true
+  USELOCALIMAGE: true
+  GOMAJOBS: 60
+
+jobs:
+  release:
+    runs-on: ${{ github.event.inputs.type }}
+    needs: build
+    if: success()
+    env:
+      OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}/apks/ChromePublic.apk
+        
+    steps:
+      - name: Enable proxy on container
+        shell: bash
+        run: |
+          if ! [[ -z "${HTTP_PROXY}" ]]; then
+            PROXY_ADDR=http://$(hostname -I | cut -d' ' -f1 | xargs):8118
+            echo "PROXY_ADDR=$PROXY_ADDR" >> $GITHUB_ENV
+            sudo iptables -D INPUT -p tcp -s localhost --dport 8118 -j ACCEPT
+            sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
+          fi
+
+      - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: ${{ env.OUTPUTFILE }}
