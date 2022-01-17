@@ -1,4 +1,4 @@
-name: Build x86
+name: Build Bromite
 permissions:
   actions: none
   checks: none
@@ -18,10 +18,22 @@ on:
         description: 'uazo/bromite SHA'
         required: true
         default: '76745fde6ed75542f005ea5528f486df41c56da4'
+      build:
+        description: 'arm64/x64'
+        required: true
+        default: 'x64'
+      type:
+        description: 'dev/ci'
+        required: true
+        default: 'dev'
+      debug:
+        description: 'true/false'
+        required: true
+        default: 'true'
       usegoma:
         description: 'Use goma?'
         required: true
-        default: 'true'
+        default: 'false'
         
 env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
@@ -32,7 +44,7 @@ env:
 
 jobs:
   check_images:
-    runs-on: self-hosted
+    runs-on: ${{ github.event.inputs.type }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -140,7 +152,7 @@ jobs:
           docker tag uazo/bromite-build:$BROMITE_SHA uazo/bromite-build:build
           
   build:
-    runs-on: self-hosted
+    runs-on: ${{ github.event.inputs.type }}
     needs: check_images
     if: success()
     timeout-minutes: 720
@@ -174,8 +186,9 @@ jobs:
         KYTHE_OUTPUT_DIRECTORY: /home/lg/working_dir/chromium/src/out/bromite/kythe
         # compile in debug mode
         TARGET_ISDEBUG: true 
+        TARGET_CPU: ${{ github.event.inputs.build }}
       volumes:
-        - /storage/images/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
         - /tmp/proxy:/tmp/proxy
         
     steps:    
@@ -284,6 +297,12 @@ jobs:
             || \
             autoninja -C out/bromite chrome_public_apk
 
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: /home/lg/working_dir/chromium/src/out/bromite/apks/ChromePublic.apk
+          
       - name: Get ninja logs
         shell: bash
         run: |
