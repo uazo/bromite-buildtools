@@ -19,19 +19,19 @@ on:
         required: true
         default: '76745fde6ed75542f005ea5528f486df41c56da4'
       build:
-        description: 'arm64/x64'
+        description: 'arch [arm64/x64]'
         required: true
         default: 'x64'
       type:
-        description: 'dev/ci'
+        description: 'runner? [dev/ci]'
         required: true
         default: 'dev'
       debug:
-        description: 'true/false'
+        description: 'debug? [true/false]'
         required: true
         default: 'true'
       usegoma:
-        description: 'Use goma?'
+        description: 'Use goma? [true/false]'
         required: true
         default: 'false'
         
