@@ -438,11 +438,6 @@ jobs:
             sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
           fi
 
-      - name: Get artifacs
-        shell: bash
-        run: |
-          docker cp 
-        
       - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
         uses: softprops/action-gh-release@v1
         with:
