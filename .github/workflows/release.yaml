@@ -38,6 +38,7 @@ jobs:
     runs-on: ${{ github.event.inputs.type }}
     env:
       OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}/apks/ChromePublic.apk
+      APK: ${{ github.event.inputs.build }}_ChromePublic.apk
         
     steps:
       - name: Enable proxy on container
@@ -50,8 +51,16 @@ jobs:
             sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
           fi
 
+      - name: Copy artifacts
+        shell: bash
+        run: |
+          sudo cp ${{ env.OUTPUTFILE }} ChromePublic.apk
+          sudo chown runner ChromePublic.apk
+          rm ChromePublic.apk $APK
+
       - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
         uses: softprops/action-gh-release@v1
         with:
           draft: true
-          files: ${{ env.OUTPUTFILE }}
+          body: Apk for ${{ env.APK }} sha ${{ github.event.inputs.sha }}
+          files: ${{ env.APK }}
