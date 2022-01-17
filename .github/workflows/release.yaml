@@ -1,7 +1,7 @@
 name: Release Bromite CI
-permissions:
-  contents: write
-  repo: write
+#permissions:
+#  contents: write
+#  repo: write
       
 on:
   workflow_dispatch:
