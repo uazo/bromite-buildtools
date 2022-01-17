@@ -185,7 +185,7 @@ jobs:
         KYTHE_ROOT_DIRECTORY: /home/lg/working_dir/chromium/src
         KYTHE_OUTPUT_DIRECTORY: /home/lg/working_dir/chromium/src/out/bromite/kythe
         # compile in debug mode
-        TARGET_ISDEBUG: true 
+        TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
         TARGET_CPU: ${{ github.event.inputs.build }}
       volumes:
         - /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
