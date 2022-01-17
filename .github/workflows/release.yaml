@@ -73,7 +73,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | gh_2.4.0_linux_amd64/bin/gh auth login --with-token
           
           cd bromite
-          VERSION=v$(cat ./build/RELEASE)-${{ github.event.inputs.build }}
+          VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
           gh_2.4.0_linux_amd64/bin/gh release create $VERSION \
             $APK --notes ""
 
