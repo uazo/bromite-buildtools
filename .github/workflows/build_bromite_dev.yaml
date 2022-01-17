@@ -297,12 +297,6 @@ jobs:
             || \
             autoninja -C out/bromite chrome_public_apk
 
-      #- name: Release
-      #  uses: softprops/action-gh-release@v1
-      #  with:
-      #    draft: true
-      #    files: /home/lg/working_dir/chromium/src/out/bromite/apks/ChromePublic.apk
-          
       - name: Get ninja logs
         shell: bash
         run: |
@@ -340,37 +334,37 @@ jobs:
           cp out/bromite/dump_syms out/bromite/symbols
           echo "::endgroup::"
 
-      - name: Generate kythe kzip
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          #python tools/clang/scripts/generate_compdb.py -p out/bromite/ -o out/bromite/compile_commands.json chrome_public_apk
-          #ninja -C out/bromite chrome_public_apk -t compdb cc cxx objc objcxx >out/bromite/compile_commands.json
-          $WORKSPACE/ninja/ninja -C $WORKSPACE/chromium/src/out/bromite -a chrome_public_apk \
-            -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
-          gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
-          
-          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
-          tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite || true
-          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
-
-          /home/lg/package_index/latest/package_index \
-            --checkout_dir /home/lg/working_dir/chromium/src \
-            --path_to_compdb /home/lg/working_dir/chromium/src/out/bromite/compile_commands.json \
-            --path_to_gn_targets /home/lg/working_dir/chromium/src/out/bromite/gn_targets.json \
-            --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
-            --path_to_archive_output /home/lg/working_dir/chromium/src/out/bromite/chromium_linux.kzip \
-            --corpus $KYTHE_CORPUS \
-            --out_dir src/out/bromite || true
+#      - name: Generate kythe kzip
+#        shell: bash
+#        run: |
+#          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+#          cd $WORKSPACE/chromium/src
+#          
+#          $WORKSPACE/ninja/ninja -C $WORKSPACE/chromium/src/out/bromite -a chrome_public_apk \
+#            -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
+#          gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
+#          
+#          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
+#          tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite || true
+#          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
+#
+#          /home/lg/package_index/latest/package_index \
+#            --checkout_dir /home/lg/working_dir/chromium/src \
+#            --path_to_compdb /home/lg/working_dir/chromium/src/out/bromite/compile_commands.json \
+#            --path_to_gn_targets /home/lg/working_dir/chromium/src/out/bromite/gn_targets.json \
+#            --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
+#            --path_to_archive_output /home/lg/working_dir/chromium/src/out/bromite/chromium_linux.kzip \
+#            --corpus $KYTHE_CORPUS \
+#            --out_dir src/out/bromite || true
 
       - name: Generate clangd index
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
+          
+          test -f out/bromite/bromite.idx || \
+            /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
           
       - name: Build junit tests
         shell: bash
@@ -425,3 +419,32 @@ jobs:
           [[ "$USEGOMA" = "true" ]] && find /tmp/ -maxdepth 1 -name "gomacc*" -print0 | xargs -0 rm || true
           [[ "$USEGOMA" = "true" ]] && rm -rf /tmp/goma_lg/ || true
           echo "::endgroup::"
+
+  release:
+    runs-on: ${{ github.event.inputs.type }}
+    needs: build
+    if: success()
+    env:
+      OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}/apks/ChromePublic.apk
+        
+    steps:
+      - name: Enable proxy on container
+        shell: bash
+        run: |
+          if ! [[ -z "${HTTP_PROXY}" ]]; then
+            PROXY_ADDR=http://$(hostname -I | cut -d' ' -f1 | xargs):8118
+            echo "PROXY_ADDR=$PROXY_ADDR" >> $GITHUB_ENV
+            sudo iptables -D INPUT -p tcp -s localhost --dport 8118 -j ACCEPT
+            sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
+          fi
+
+      - name: Get artifacs
+        shell: bash
+        run: |
+          docker cp 
+        
+      - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: ${{ env.OUTPUTFILE }}
