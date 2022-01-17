@@ -39,7 +39,6 @@ jobs:
     env:
       OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
       APK: ${{ github.event.inputs.build }}_ChromePublic.apk
-      HTTPS_PROXY: $PROXY_ADDR
         
     steps:
       - name: Copy artifacts
