@@ -12,7 +12,7 @@ on:
       build:
         description: 'arch [arm64/x64]'
         required: true
-        default: 'x64'
+        default: 'arm64'
       type:
         description: 'runner? [dev/ci]'
         required: true
