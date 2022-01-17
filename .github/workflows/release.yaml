@@ -74,7 +74,7 @@ jobs:
           
           cd bromite
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
-          gh_2.4.0_linux_amd64/bin/gh release create $VERSION \
+          ../gh_2.4.0_linux_amd64/bin/gh release create $VERSION \
             $APK --notes ""
 
 #      - name: Enable proxy on container
