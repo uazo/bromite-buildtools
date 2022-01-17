@@ -33,7 +33,7 @@ env:
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
   GOMAJOBS: 60
-
+  
 jobs:
   release:
     runs-on: ${{ github.event.inputs.type }}
@@ -42,6 +42,24 @@ jobs:
       APK: ${{ github.event.inputs.build }}_ChromePublic.apk
         
     steps:
+      - name: Prepare container
+        run: |
+          wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
+          unzip pup_v0.4.0_linux_amd64.zip && rm pup_v0.4.0_linux_amd64.zip
+          BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$BROMITE_SHA | ./pup -p li.branch a text{})
+          echo "BRANCH=$BRANCH" >> $GITHUB_EN
+
+          wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
+          tar xfz gh_2.4.0_linux_amd64.tar.gz
+
+      - name: Checkout 'uazo/bromite' ${{ env.BRANCH }}
+        uses: actions/checkout@v2
+        with:
+            repository: 'uazo/bromite'
+            ref: ${{ github.event.inputs.rtag }}
+            path: 'bromite'
+            fetch-depth: 1
+            
       - name: Copy artifacts
         shell: bash
         run: |
@@ -52,12 +70,10 @@ jobs:
       - name: Create release
         shell: bash
         run: |
-          wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
-          tar xfz gh_2.4.0_linux_amd64.tar.gz
-          
           echo ${{ secrets.GITHUB_TOKEN }} | gh_2.4.0_linux_amd64/bin/gh auth login --with-token
           
-          VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
+          cd bromite
+          VERSION=v$(cat ./build/RELEASE)-${{ github.event.inputs.build }}
           gh_2.4.0_linux_amd64/bin/gh release create $VERSION \
             $APK --notes ""
 
