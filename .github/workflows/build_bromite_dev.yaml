@@ -342,8 +342,6 @@ jobs:
 #          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
 #          cd $WORKSPACE/chromium/src
 #          
-#          $WORKSPACE/ninja/ninja -C $WORKSPACE/chromium/src/out/bromite -a chrome_public_apk \
-#            -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
 #          gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
 #          
 #          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
@@ -360,11 +358,15 @@ jobs:
 #            --out_dir src/out/bromite || true
 
       - name: Generate clangd index
+        if: ${{ github.event.inputs.debug }} == "true"
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
+          $WORKSPACE/ninja/ninja -C $WORKSPACE/chromium/src/out/bromite -a chrome_public_apk \
+            -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
+
           test -f out/bromite/bromite.idx || \
             /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
           
