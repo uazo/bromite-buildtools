@@ -358,7 +358,7 @@ jobs:
 #            --out_dir src/out/bromite || true
 
       - name: Generate clangd index
-        if: ${{ github.event.inputs.debug }} == "true"
+        if: ${{ github.event.inputs.debug == 'true' }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
