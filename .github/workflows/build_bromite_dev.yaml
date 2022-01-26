@@ -369,6 +369,15 @@ jobs:
 
           test -f out/bromite/bromite.idx || \
             /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
+
+      - name: Generate Supersize data
+        if: ${{ github.event.inputs.debug == 'false' }}
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
+          tools/binary_size/supersize archive out/bromite/chrome.size --apk-file out/bromite/apks/ChromePublic.apk -v
           
       - name: Build junit tests
         shell: bash
