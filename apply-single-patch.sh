@@ -70,7 +70,7 @@ if [[ DOBUILD -eq 1 ]]; then
 
         DOEXPORT=1
 
-        if [[ OK -eq 0 ]]; then
+        if [[ OK -eq 1 ]]; then
                 if [ -z "$SILENT" ]; then
                    echo "Read to add $PATCH. Press return"
                    read  -n 1
