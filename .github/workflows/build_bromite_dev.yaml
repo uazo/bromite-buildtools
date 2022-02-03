@@ -81,7 +81,7 @@ jobs:
           
           cd bromite-buildtools
           
-      - name: Checking build-deps for ${{ env.VERSION }}
+      - name: Building build-deps container ${{ env.VERSION }}
         shell: bash
         run: |
           IS_PRESENT=$(docker inspect --type=image uazo/build-deps:$VERSION > /dev/null ; echo $?)
@@ -97,7 +97,7 @@ jobs:
             fi
           fi
         
-      - name: Checking chromium for ${{ env.VERSION }}
+      - name: Building chromium container ${{ env.VERSION }}
         shell: bash
         run: |
           IS_PRESENT=$(docker inspect --type=image uazo/chromium:$VERSION > /dev/null ; echo $?)
@@ -112,7 +112,7 @@ jobs:
             fi
           fi
 
-      - name: Checking bromite for ${{ env.BROMITE_SHA }}
+      - name: Building bromite container ${{ env.BROMITE_SHA }}
         shell: bash
         run: |
           IS_PRESENT=$(docker inspect --type=image uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
@@ -127,7 +127,7 @@ jobs:
             fi
           fi
           
-      - name: Checking bromite-build for ${{ env.BROMITE_SHA }}
+      - name: Building bromite-build container ${{ env.BROMITE_SHA }}
         shell: bash
         run: |
           IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
