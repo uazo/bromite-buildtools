@@ -49,7 +49,8 @@ echo "Registering runner ${runner_id}"
   --allowedauthorslist "${ALLOWEDAUTHORSLIST}" \
   --unattended \
   --replace \
-  --disableupdate
+  --disableupdate \
+  --ephemeral
 
 trap 'remove_runner; exit 130' SIGINT
 trap 'remove_runner; exit 143' SIGTERM
@@ -59,5 +60,5 @@ for f in runsvc.sh RunnerService.js; do
   mv {patched,bin}/${f}
 done
 
-./bin/runsvc.sh --ephemeral "$*"
+./bin/runsvc.sh --once "$*"
 remove_runner
