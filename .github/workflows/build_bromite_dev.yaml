@@ -250,9 +250,9 @@ jobs:
 
              echo "::group::-------- gn gen"
              [[ "$USEGOMA" = "true" ]] && \
-                gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
+                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
                 || \
-                gn gen --args="import(\"/home/lg/working_dir/bromite/build/GN_ARGS\") $(cat ../../build_args.gni) " out/bromite              
+                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite              
              echo "::endgroup::"
 
              echo "::group::-------- gn args"
