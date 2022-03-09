@@ -46,7 +46,7 @@ jobs:
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
           unzip pup_v0.4.0_linux_amd64.zip && rm pup_v0.4.0_linux_amd64.zip
           BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$BROMITE_SHA | ./pup -p li.branch a text{})
-          echo "BRANCH=\"$BRANCH\"" >> $GITHUB_ENV
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
           wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
           tar xfz gh_2.4.0_linux_amd64.tar.gz
