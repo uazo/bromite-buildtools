@@ -37,9 +37,11 @@ PATCH_LIST=~/bromite/build/bromite_patches_list.txt
 mkdir ~/bromite/build/patches-new/changed
 mkdir ~/bromite/build/patches-new/contrib
 for current_file in $(cat $PATCH_LIST); do
-	if [[ $current_file =~ ^changed/.* ]]; then
-		mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/changed
-	elif [[ $current_file =~ ^contrib/.* ]]; then
-		mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/contrib
+	if [[ "$PATCH_FILE" == *".patch" ]]; then
+		if [[ $current_file =~ ^changed/.* ]]; then
+			mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/changed
+		elif [[ $current_file =~ ^contrib/.* ]]; then
+			mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/contrib
+		fi
 	fi
 done
