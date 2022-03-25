@@ -10,6 +10,7 @@ cd chromium/src
 echo -e ${RED} ------- apply patchs ${NC}
 for file in $(cat ../../bromite/build/bromite_patches_list.txt) ; do
 
+   if [[ "$file" == *".patch" ]]; then
 	#if [[ "$file" == *"Automated-domain-substitution"* ]]; then
 	#	echo -e ${RED} " -> Excluding $file" ${NC}
 	#	continue
@@ -27,4 +28,6 @@ for file in $(cat ../../bromite/build/bromite_patches_list.txt) ; do
 	fi
 
 	echo " "
+    fi
+    
 done
