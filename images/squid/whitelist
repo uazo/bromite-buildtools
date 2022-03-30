@@ -3,7 +3,10 @@
 .docker.com
 .githubusercontent.com
 .ubuntu.com
+
+# for .net
 .dot.net
+dotnet.microsoft.com
 
 # for buildeps
 #chromium.googlesource.com
