@@ -9,6 +9,7 @@
 dotnet.microsoft.com
 dotnetcli.azureedge.net
 aka.ms
+packages.microsoft.com
 
 # for buildeps
 #chromium.googlesource.com
