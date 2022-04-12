@@ -14,7 +14,7 @@ if(getenv("TARGET_CPU") != "") {
 # print("Target " + target_cpu)
 
 enable_kythe_annotations = true
-clang_use_chrome_plugins = false
+# clang_use_chrome_plugins = false
 chrome_public_manifest_package = "org.bromite.bromite.dev"
 
 if(_is_debug_build == "true") {
