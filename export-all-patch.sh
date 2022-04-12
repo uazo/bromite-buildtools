@@ -41,7 +41,7 @@ for current_file in $(cat $PATCH_LIST); do
 		if [[ $current_file =~ ^changed/.* ]]; then
 			mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/changed
 		elif [[ $current_file =~ ^contrib/.* ]]; then
-			mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/contrib
+			mv ~/bromite/build/patches-new/$(basename $current_file) ~/bromite/build/patches-new/contrib || true
 		fi
 	fi
 done
