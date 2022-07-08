@@ -16,7 +16,7 @@ RUN dpkg --add-architecture i386
 
 RUN apt-get update &&\
     DEBIAN_FRONTEND=noninteractive \
-    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential lib32gcc-9-dev
+    apt-get -f -y install sudo lsb-release cl-base64 bash wget apt-utils python sed tzdata build-essential lib32gcc-9-dev g++-multilib
 
 ENV user lg
 
@@ -41,8 +41,7 @@ RUN wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/bui
     chmod +x ./install-build-deps.sh && \
     chmod +x ./install-build-deps-android.sh && \
     sudo ./install-build-deps.sh --no-prompt --lib32 --no-chromeos-fonts && \
-    sudo ./install-build-deps-android.sh --no-prompt && \
-    sudo apt-get install g++-multilib
+    sudo ./install-build-deps-android.sh --no-prompt
 
 
    
