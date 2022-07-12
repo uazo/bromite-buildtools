@@ -368,7 +368,10 @@ jobs:
             -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/bromite/compile_commands.json
 
           test -f out/bromite/bromite.idx || \
-            /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/bromite/compile_commands.json >out/bromite/bromite.idx
+            cp -r out/bromite/ out/clangd && \
+            gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) skip_clangd_unsupported_options = true" out/clangd && \
+            /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/clangd/compile_commands.json >out/bromite/bromite.idx && \
+            rm -rf out/clangd
 
       - name: Generate Supersize data
         if: ${{ github.event.inputs.debug == 'false' }}
