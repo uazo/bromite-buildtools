@@ -23,6 +23,7 @@ ENV user lg
 RUN useradd -m -d /home/${user} ${user} && \
     chown -R ${user} /home/${user} && \
     adduser ${user} sudo && \
+    chmod 4755 /usr/bin/sudo && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER ${user}
 
