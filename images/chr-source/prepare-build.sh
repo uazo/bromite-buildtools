@@ -22,6 +22,8 @@ echo -e ${RED} -------- download chromium repo ${NC}
 mkdir ./chromium
 cd ./chromium
 
+export DEPOT_TOOLS_UPDATE=0
+
 gclient root
 
 mkdir ./src
