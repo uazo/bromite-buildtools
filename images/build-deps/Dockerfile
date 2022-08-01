@@ -32,12 +32,10 @@ USER ${user}
 
 WORKDIR /home/${user}
 
-RUN wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/build/install-build-deps.sh?format=TEXT -O install-build-deps.sh.base64 \
+RUN wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps.sh install-build-deps.sh \
     && \
-    wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/build/install-build-deps-android.sh?format=TEXT -O install-build-deps-android.sh.base64 \
+    wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps-android.sh \
     && \
-    base64 -d install-build-deps.sh.base64 >install-build-deps.sh && \
-    base64 -d install-build-deps-android.sh.base64 >install-build-deps-android.sh && \
     sed -i 's/snapcraft/wget/' install-build-deps.sh && \
     chmod +x ./install-build-deps.sh && \
     chmod +x ./install-build-deps-android.sh && \
@@ -45,5 +43,5 @@ RUN wget https://chromium.googlesource.com/chromium/src/+/refs/tags/$VERSION/bui
     sudo ./install-build-deps-android.sh --no-prompt
 
 
-   
+   https://raw.githubusercontent.com/chromium/chromium/104.0.5112.63/build/install-build-deps-android.sh
 
