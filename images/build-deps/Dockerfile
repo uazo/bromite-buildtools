@@ -32,7 +32,7 @@ USER ${user}
 
 WORKDIR /home/${user}
 
-RUN wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps.sh install-build-deps.sh \
+RUN wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps.sh \
     && \
     wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps-android.sh \
     && \
