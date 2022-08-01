@@ -42,6 +42,3 @@ RUN wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/inst
     sudo ./install-build-deps.sh --no-prompt --lib32 --no-chromeos-fonts && \
     sudo ./install-build-deps-android.sh --no-prompt
 
-
-   https://raw.githubusercontent.com/chromium/chromium/104.0.5112.63/build/install-build-deps-android.sh
-
