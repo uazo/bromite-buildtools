@@ -29,16 +29,19 @@ gclient root
 mkdir ./src
 cd ./src
 
-git init
-git remote add origin https://chromium.googlesource.com/chromium/src.git
+#CHR_SOURCE=https://chromium.googlesource.com/chromium/src.git
+CHR_SOURCE=https://github.com/chromium/chromium.git
 
-git fetch --depth 2 https://chromium.googlesource.com/chromium/src.git +refs/tags/$VERSION:chromium_$VERSION
+git init
+git remote add origin $CHR_SOURCE
+
+git fetch --depth 2 $CHR_SOURCE +refs/tags/$VERSION:chromium_$VERSION
 git checkout $VERSION
 VERSION_SHA=$( git show-ref -s $VERSION | head -n1 )
 
 echo >../.gclient "solutions = ["
 echo >>../.gclient "  { \"name\"        : 'src',"
-echo >>../.gclient "    \"url\"         : 'https://chromium.googlesource.com/chromium/src.git@$VERSION_SHA',"
+echo >>../.gclient "    \"url\"         : '$CHR_SOURCE@$VERSION_SHA',"
 echo >>../.gclient "    \"deps_file\"   : 'DEPS',"
 echo >>../.gclient "    \"managed\"     : True,"
 echo >>../.gclient "    \"custom_deps\" : {"
