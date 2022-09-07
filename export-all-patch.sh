@@ -18,15 +18,11 @@ for patch in $ALLPATCHS_E; do
 
 	if [ -z "$PATCH_FILE" ]
 	then
-		#git -C ~/chromium/src/ show -s $patch
 		PATCH_FILE=$(git -C ~/chromium/src/ show -s $patch | tail -n 1)
 		if [[ "$PATCH_FILE" != *".patch" ]]; then
-			PATCH_FILE=$NO_NAME.patch
-			NO_NAME=$NO_NAME.1
-			echo No Name ${NO_NAME}, press return
+			PATCH_FILE=00$(git -C ~/chromium/src/ show -s $patch | head -n 5 | tail -n 1 | xargs | tr " " - | tr [:punct:] -).patch
+			echo New Patch: ${PATCH_FILE}
 		fi
-
-		read  -n 1
 	fi
 
 	bash ~/bromite-buildtools/export-single-patch.sh $patch $PATCH_FILE
