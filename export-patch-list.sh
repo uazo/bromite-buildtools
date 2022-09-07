@@ -16,6 +16,9 @@ for patch in $ALLPATCHS_E; do
 	if [[ "$PATCH_FILE" == *"Automated-domain-substitution"* ]]; then
 		continue
 	fi
+	if [[ -z "$PATCH_FILE" ]]; then
+		PATCH_FILE=00$(git -C ~/chromium/src/ show -s $patch | head -n 5 | tail -n 1 | xargs | tr " " - | tr [:punct:] -).patch
+	fi
 
 	echo $PATCH_FILE >>~/bromite/build/patches-new/patch-list
 
