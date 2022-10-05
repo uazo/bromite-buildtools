@@ -37,6 +37,7 @@ do
     -v $GHRUNNERHOME/tmp/forward-proxy:/tmp/forward-proxy:rw \
     -v $GHRUNNERHOME/redis:/redis:rw \
     -v $GHRUNNERHOME/var/run:/var/run \
+    -v /casefold:/win_sdk \
     --network none \
     --device=/dev/kvm \
     uazo/github-runner
