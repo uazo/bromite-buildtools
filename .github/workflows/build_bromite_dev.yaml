@@ -190,6 +190,7 @@ jobs:
       volumes:
         - /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
         - /tmp/proxy:/tmp/proxy
+        - /win_sdk:/win_sdk
         
     steps:    
       - name: Prepare Build Container
