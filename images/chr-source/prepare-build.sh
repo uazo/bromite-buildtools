@@ -73,3 +73,16 @@ gclient runhooks
 
 echo -e ${RED} -------- download objdump ${NC}
 tools/clang/scripts/update.py --package=objdump
+
+echo -e ${RED} -------- build rc ${NC}
+cd build/toolchain/win/rc
+git clone -q https://github.com/nico/hack
+cd hack/res
+
+../../../../../../third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
+		-std=c++14 rc.cc -Wall \
+		-Wno-c++11-narrowing -O2 -fno-rtti -fno-exceptions -DNDEBUG \
+        -o rc-linux64 -fuse-ld=lld -target x86_64-unknown-linux-gnu
+cd ../../../../../../
+cp build/toolchain/win/rc/hack/res/rc-linux64 build/toolchain/win/rc/linux64/rc
+
