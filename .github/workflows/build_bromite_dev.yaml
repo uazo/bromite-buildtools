@@ -22,6 +22,10 @@ on:
         description: 'arch [arm64/x64]'
         required: true
         default: 'x64'
+      targetos:
+        description: 'targetos [android/win]'
+        required: true
+        default: 'android'
       type:
         description: 'runner? [dev/ci]'
         required: true
@@ -181,14 +185,20 @@ jobs:
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
         WORKSPACE: /home/lg/working_dir
+        # kythe
         KYTHE_CORPUS: chromium.googlesource.com/chromium/src
         KYTHE_ROOT_DIRECTORY: /home/lg/working_dir/chromium/src
         KYTHE_OUTPUT_DIRECTORY: /home/lg/working_dir/chromium/src/out/bromite/kythe
+        # cross build
+        DEPOT_TOOLS_WIN_TOOLCHAIN_BASE_URL: /win_sdk/10.0.20348.0/
+        WINDOWSSDKDIR: /win_sdk/10.0.20348.0/Windows\ Kits/10/
+        GYP_MSVS_OVERRIDE_PATH: /win_sdk/10.0.20348.0/
         # compile in debug mode
         TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
         TARGET_CPU: ${{ github.event.inputs.build }}
+        TARGET_OS: ${{ github.event.inputs.targetos }}
       volumes:
-        - /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/${{ github.event.inputs.targetos }}/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
         - /tmp/proxy:/tmp/proxy
         - /win_sdk:/win_sdk
         
@@ -250,10 +260,15 @@ jobs:
           if [[ OUT_PRESENT -eq 0 ]]; then
 
              echo "::group::-------- gn gen"
-             [[ "$USEGOMA" = "true" ]] && \
-                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
-                || \
-                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite              
+             if [[ "$TARGET_OS" = "android" ]] 
+             then
+               [[ "$USEGOMA" = "true" ]] && \
+                  gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
+                  || \
+                  gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite    
+             else
+                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") target_cpu = \"x64\" target_os = \"win\" $(cat ../../build_args.gni) " out/bromite
+             fi
              echo "::endgroup::"
 
              echo "::group::-------- gn args"
@@ -295,10 +310,15 @@ jobs:
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
-          [[ "$USEGOMA" = "true" ]] && \
-            autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk \
-            || \
-            autoninja -C out/bromite chrome_public_apk
+          if [[ "$TARGET_OS" = "android" ]] 
+          then
+            [[ "$USEGOMA" = "true" ]] && \
+              autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk \
+              || \
+              autoninja -C out/bromite chrome_public_apk
+          else
+            autoninja -C out/bromite chrome
+          fi
 
       - name: Get ninja logs
         shell: bash
