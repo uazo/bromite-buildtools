@@ -37,5 +37,7 @@ if(_is_debug_build == "true") {
   is_cfi = false # disable it
   use_cfi_cast = false # disable it
 } else {
-  generate_linker_map = true
+  if (target_os == "android") {
+    generate_linker_map = true
+  }
 }
