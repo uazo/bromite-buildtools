@@ -27,6 +27,16 @@ jobs:
     name: Generate Build Deps
     runs-on: ubuntu-latest
     steps:
+      - name: Reclaiming disk space on / by removing dotnet/android/ghc
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo apt-get remove google-cloud-sdk azure-cli ghc-9.0.1 ghc-8.10.4 hhvm google-chrome-stable \
+                       firefox mysql-server-core-8.0 mono-devel mongodb-org-server podman mongodb-org-mongos \
+                       powershell dotnet-runtime-3.1 dotnet-runtime-5.0 dotnet-sdk-3.1 dotnet-sdk-5.0
+          sudo apt-get autoremove
+          
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
