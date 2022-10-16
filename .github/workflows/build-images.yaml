@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           if [ -z $VERSION ]; then
-            VERSION=$(curl -s https://omahaproxy.appspot.com/all.json | jq '.[] | select(.os | contains("win64")) | .versions[] | select(.channel | contains("stable")) | .current_version')
+            VERSION=$(curl -s https://omahaproxy.appspot.com/all.json | jq '.[] | select(.os | contains("win64")) | .versions[] | select(.channel | contains("stable")) | .current_version' | xargs)
             echo "VERSION=$VERSION" >> $GITHUB_ENV
           fi
           
