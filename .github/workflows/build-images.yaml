@@ -11,58 +11,65 @@ permissions:
   statuses: none
  
 on:
-  push:
-    tags:
-      - 'v*'
-      
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'chromium version'
+        required: true
+        default: ''
+        
+env:
+  VERSION: ${{ github.event.inputs.version }}
+  
 name: Builds and pushes tagged image to DockerHub
 jobs:
   generate_build_deps:
     name: Generate Build Deps
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Find VERSION
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      - name: Docker Build and Push
-        uses: docker/build-push-action@v2
-        with:
-          context: ./images/build-deps
-          push: true
-          build-args: VERSION=${{ env.VERSION }}
-          tags: |
-            uazo/build-deps:${{ env.VERSION }}
-
-  generate_chromium_src:
-    name: Generate Chromium Sources
-    needs: generate_build_deps
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Reclaiming disk space on / by removing dotnet/android/ghc
+    steps:    
+      - name: Building build-deps container ${{ env.VERSION }}
+        shell: bash
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo apt-get remove google-cloud-sdk azure-cli ghc-9.0.1 ghc-8.10.4 hhvm google-chrome-stable firefox mysql-server-core-8.0 mono-devel mongodb-org-server podman mongodb-org-mongos powershell dotnet-runtime-3.1 dotnet-runtime-5.0 dotnet-sdk-3.1 dotnet-sdk-5.0
-          sudo apt-get autoremove
-      - name: Find VERSION
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
-      - name: Docker Build and Push
-        uses: docker/build-push-action@v2
+          IS_PRESENT=$(docker inspect --type=image uazo/build-deps:$VERSION > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/build-deps:$VERSION > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/build-deps:$VERSION \
+                --progress plain \
+                --build-arg VERSION=$VERSION \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
+                --no-cache \
+                bromite-buildtools/images/build-deps/.
+            fi
+          fi
+
+      - name: Docker Push build-deps
+        shell: bash
+        run: |
+          docker push uazo/build-deps:$VERSION
+
+      - name: Building chromium container ${{ env.VERSION }}
+        shell: bash
+        run: |
+          IS_PRESENT=$(docker inspect --type=image uazo/chromium:$VERSION > /dev/null ; echo $?)
+          if [ $IS_PRESENT -ne "0" ]; then
+            IS_PRESENT=$(docker manifest inspect uazo/chromium:$VERSION > /dev/null ; echo $?)
+            if [ $IS_PRESENT -ne "0" ]; then
+              DOCKER_BUILDKIT=1 docker build -t uazo/chromium:$VERSION \
+                --progress plain \
+                --build-arg VERSION=$VERSION \
+                --build-arg HTTP_PROXY="$PROXY_ADDR" \
+                bromite-buildtools/images/chr-source/.
+            fi
+          fi
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          context: ./images/chr-source
-          push: true
-          build-args: VERSION=${{ env.VERSION }}
-          tags: |
-            uazo/chromium:${{ env.VERSION }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Docker Push chromium
+        shell: bash
+        run: |
+          docker push uazo/chromium:$VERSION
