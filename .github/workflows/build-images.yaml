@@ -26,7 +26,13 @@ jobs:
   generate_build_deps:
     name: Generate Build Deps
     runs-on: ubuntu-latest
-    steps:    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          path: bromite-buildtools
+          fetch-depth: 1
+          
       - name: Building build-deps container ${{ env.VERSION }}
         shell: bash
         run: |
