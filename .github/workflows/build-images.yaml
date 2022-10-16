@@ -62,13 +62,10 @@ jobs:
                 --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 --no-cache \
                 bromite-buildtools/images/build-deps/.
+              
+              docker push uazo/build-deps:$VERSION
             fi
-          fi
-
-      - name: Docker Push build-deps
-        shell: bash
-        run: |
-          docker push uazo/build-deps:$VERSION
+          fi          
 
       - name: Building chromium container ${{ env.VERSION }}
         shell: bash
@@ -82,10 +79,8 @@ jobs:
                 --build-arg VERSION=$VERSION \
                 --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 bromite-buildtools/images/chr-source/.
+                
+              docker push uazo/chromium:$VERSION
             fi
           fi
           
-      - name: Docker Push chromium
-        shell: bash
-        run: |
-          docker push uazo/chromium:$VERSION
