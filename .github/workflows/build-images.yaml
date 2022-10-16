@@ -17,6 +17,8 @@ on:
         description: 'chromium version'
         required: false
         default: ''
+  schedule: 
+   - cron: '0 5 * * *'
         
 env:
   VERSION: ${{ github.event.inputs.version }}
