@@ -15,7 +15,7 @@ on:
     inputs:
       version:
         description: 'chromium version'
-        required: true
+        required: false
         default: ''
         
 env:
@@ -48,6 +48,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Check versions
+        shell: bash
+        run: |
+          if [ -z $VERSION ]; then
+            VERSION=$(curl -s https://omahaproxy.appspot.com/all.json | jq '.[] | select(.os | contains("win64")) | .versions[] | select(.channel | contains("stable")) | .current_version')
+            echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          fi
           
       - name: Building build-deps container ${{ env.VERSION }}
         shell: bash
