@@ -17,15 +17,15 @@ on:
       sha:
         description: 'uazo/bromite SHA'
         required: true
-        default: '76745fde6ed75542f005ea5528f486df41c56da4'
+        default: ''
+      target_os:
+        description: 'targetos [android/win/all]'
+        required: true
+        default: 'all'
       build:
-        description: 'arch [arm64/x64]'
+        description: 'android arch [arm64/x64]'
         required: true
         default: 'x64'
-      targetos:
-        description: 'targetos [android/win]'
-        required: true
-        default: 'android'
       type:
         description: 'runner? [dev/ci]'
         required: true
@@ -34,17 +34,15 @@ on:
         description: 'debug? [true/false]'
         required: true
         default: 'true'
-      usegoma:
-        description: 'Use goma? [true/false]'
+      clangd:
+        description: 'clangd? [true/false]'
         required: true
         default: 'false'
         
 env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
-  USEGOMA: ${{ github.event.inputs.usegoma }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
-  GOMAJOBS: 60
 
 jobs:
   check_images:
@@ -160,27 +158,10 @@ jobs:
     needs: check_images
     if: success()
     timeout-minutes: 720
-
-    services:      
-      gomaserver:
-        image: uazo/goma-server
-        volumes: 
-          - /tmp/proxy:/tmp/proxy
-          - /redis:/var/lib/redis
-        options: >-
-          --health-cmd "hostname -I >/tmp/proxy/gomaserverip"
-          --health-interval 30s
-          --health-timeout 5s
-          --health-retries 5
-          
-        env:
-          REMOVEDOCKERSUPPORT: true
-          USELOCALIMAGE: true
   
     container:
       image: uazo/bromite-build:build
       env:
-        SERVER_HOST_GOMA: gomaserver
         REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: true  # CUSTOM RUNNER: create the docker network as internal
@@ -196,9 +177,10 @@ jobs:
         # compile in debug mode
         TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
         TARGET_CPU: ${{ github.event.inputs.build }}
-        TARGET_OS: ${{ github.event.inputs.targetos }}
+        TARGET_OS: ${{ github.event.inputs.target_os }}
       volumes:
-        - /storage/images/${{ github.event.inputs.targetos }}/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/android/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/win/x64/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_win
         - /tmp/proxy:/tmp/proxy
         - /win_sdk:/win_sdk
         
@@ -216,26 +198,14 @@ jobs:
           http_proxy=
           https_proxy=
           
-          # update hosts
-          #sudo echo "$(cat /tmp/proxy/gomaserverip | xargs) gomaserver" >/etc/hosts
-          #sudo echo "$(cat /tmp/proxy/redisip | xargs) redis" >/etc/hosts
-          
-          # set goma options
-          export SERVER_HOST_GOMA=$(cat /tmp/proxy/gomaserverip | xargs)
-          export GOMA_SERVER_HOST=$SERVER_HOST_GOMA
-          export GOMA_SERVER_PORT=5050
-          export GOMA_USE_SSL=false
-          export GOMA_HTTP_AUTHORIZATION_FILE=$WORKSPACE/.debug_auth_file
-          export GOMA_HERMETIC=error
-          export GOMA_USE_LOCAL=false
-          export GOMA_FALLBACK=true
-          export GOMA_ARBITRARY_TOOLCHAIN_SUPPORT=true
-          export GOMA_MAX_SUBPROCS_LOW=0
-          
           # set out folder permissions
           test -d chromium/src/out/bromite || sudo mkdir -p chromium/src/out/bromite && \
             sudo chown lg chromium/src/out &&
-            sudo chown lg chromium/src/out/bromite &&
+            sudo chown lg chromium/src/out/bromite
+
+          test -d chromium/src/out/bromite_win || sudo mkdir -p chromium/src/out/bromite_win && \
+            sudo chown lg chromium/src/out &&
+            sudo chown lg chromium/src/out/bromite_win
           
           # make kythe output directory
           test -d $KYTHE_OUTPUT_DIRECTORY || mkdir -p $KYTHE_OUTPUT_DIRECTORY
@@ -244,111 +214,72 @@ jobs:
           sudo chown lg /run/user/1000/
           sudo chmod g-rxw /run/user/1000/
           sudo chmod o-rxw /run/user/1000/
-
-          # start goma client
-          [[ "$USEGOMA" = "true" ]] && \
-              echo "::group::-------- start goma client" && \
-              $WORKSPACE/goma/goma_ctl.py ensure_stop && \
-              $WORKSPACE/goma/goma_ctl.py ensure_start && \
-              echo "::endgroup::" \
-            || true
           
-          cd chromium/src
-
-          OUT_PRESENT=0
-          test -f out/bromite/prepare_gn && OUT_PRESENT=1
-          if [[ OUT_PRESENT -eq 0 ]]; then
-
-             echo "::group::-------- gn gen"
-             if [[ "$TARGET_OS" = "android" ]] 
-             then
-               [[ "$USEGOMA" = "true" ]] && \
-                  gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") use_goma=true goma_dir=\"$WORKSPACE/goma\" $(cat ../../build_args.gni) " out/bromite \
-                  || \
-                  gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite    
-             else
-                gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") target_cpu = \"x64\" target_os = \"win\" $(cat ../../build_args.gni) " out/bromite
-             fi
-             echo "::endgroup::"
-
-             echo "::group::-------- gn args"
-             gn args out/bromite/ --list --short
-             gn args out/bromite/ --list >out/bromite/gn_list
-             echo "::endgroup::"
-
-             echo "::group::-------- apply .mtool"
-             test -f out/bromite/.mtool && \
-                cp out/bromite/.mtool .mtool && \
-                $WORKSPACE/mtool/chromium/mtime.sh --restore
-             echo "::endgroup::"
-             
-             echo "OK" >out/bromite/prepare_gn
-
-          fi
-          
-          cp ../../bromite/build/RELEASE out/bromite
-
-          if [[ -z "${GOMAJOBS}" ]]; then
-              GOMAJOBS=40
-          fi
-
-          echo "::group::-------- pre-cache toolchain"
-          [[ "$USEGOMA" = "true" ]] && \
-            sudo ../../casupload --cas-server=unix:/tmp/proxy/bots.sock --instance=default_instance \
-                    third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
-                    third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/include \
-                    third_party/llvm-build/Release+Asserts/lib \
-                    third_party/llvm-build/Release+Asserts/bin \
-                    buildtools/third_party/libc++ \
-              chrome/android/profiles/afdo.prof \
-            || true
-          echo "::endgroup::"
-
-      - name: Build Bromite
+      - name: Build Bromite Android
+        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
-          
-          if [[ "$TARGET_OS" = "android" ]] 
-          then
-            [[ "$USEGOMA" = "true" ]] && \
-              autoninja -j $GOMAJOBS -C out/bromite chrome_public_apk \
-              || \
-              autoninja -C out/bromite chrome_public_apk
-          else
-            autoninja -C out/bromite chrome
-          fi
 
-      - name: Get ninja logs
+          echo "::group::-------- gn gen"
+          gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite    
+          echo "::endgroup::"
+
+          echo "::group::-------- gn args"
+          gn args out/bromite/ --list --short
+          gn args out/bromite/ --list >out/bromite/gn_list
+          echo "::endgroup::"
+
+          autoninja -C out/bromite chrome_public_apk
+
+          cp ../../bromite/build/RELEASE out/bromite
+
+      - name: Get ninja logs Android
+        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
         shell: bash
         run: |
           cd $WORKSPACE
           $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite/.ninja_log >$WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
           $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
-        
-      - name: Get goma logs
+          
+      - name: Build Bromite Windows
+        if: ${{ github.event.inputs.target_os == 'win' || github.event.inputs.target_os == 'all' }}
         shell: bash
         run: |
-          # reset proxy env
-          HTTP_PROXY=
-          HTTPS_PROXY=
-          http_proxy=
-          https_proxy=
-          
-           [[ "$USEGOMA" = "true" ]] && \
-             wget http://127.0.0.1:8088/logz?INFO -O out/bromite/goma-client.log \
-           || \
-             echo Skipped.
-          
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+
+          echo "::group::-------- gn gen"
+          gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") target_cpu = \"x64\" target_os = \"win\" $(cat ../../build_args.gni) " out/bromite_win
+          echo "::endgroup::"
+
+          echo "::group::-------- gn args"
+          gn args out/bromite_win/ --list --short
+          gn args out/bromite_win/ --list >out/bromite_win/gn_list
+          echo "::endgroup::"
+
+          autoninja -C out/bromite_win chrome
+
+          cp ../../bromite/build/RELEASE out/bromite_win
+
+      - name: Get ninja logs Windows
+        if: ${{ github.event.inputs.target_os == 'win' || github.event.inputs.target_os == 'all' }}
+        shell: bash
+        run: |
+          cd $WORKSPACE
+          $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite_win/.ninja_log >$WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
+          $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
+
       - name: Generate breakpad symbols
+        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
           
           echo "::group::-------- generating breakpad symbols"
-          autoninja -j $GOMAJOBS -C out/bromite minidump_stackwalk dump_syms
+          autoninja -C out/bromite minidump_stackwalk dump_syms
           components/crash/content/tools/generate_breakpad_symbols.py --build-dir=out/bromite \
              --symbols-dir=out/bromite/symbols/ --binary=out/bromite/lib.unstripped/libchrome.so \
              --platform=android --clear --verbose
@@ -357,29 +288,17 @@ jobs:
           cp out/bromite/dump_syms out/bromite/symbols
           echo "::endgroup::"
 
-#      - name: Generate kythe kzip
-#        shell: bash
-#        run: |
-#          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-#          cd $WORKSPACE/chromium/src
-#          
-#          gn desc out/bromite 'chrome_public_apk' --format=json >out/bromite/gn_targets.json
-#          
-#          #python tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite/ --all || true
-#          tools/clang/scripts/run_tool.py --tool translation_unit -p out/bromite || true
-#          python /home/lg/add_kythe_metadata.py out/bromite/ --corpus $KYTHE_CORPUS || true
-#
-#          /home/lg/package_index/latest/package_index \
-#            --checkout_dir /home/lg/working_dir/chromium/src \
-#            --path_to_compdb /home/lg/working_dir/chromium/src/out/bromite/compile_commands.json \
-#            --path_to_gn_targets /home/lg/working_dir/chromium/src/out/bromite/gn_targets.json \
-#            --path_to_java_kzips $KYTHE_OUTPUT_DIRECTORY \
-#            --path_to_archive_output /home/lg/working_dir/chromium/src/out/bromite/chromium_linux.kzip \
-#            --corpus $KYTHE_CORPUS \
-#            --out_dir src/out/bromite || true
-
+      - name: Generate Supersize data
+        if: ${{ github.event.inputs.debug == 'false' && (github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all') }}
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+          
+          tools/binary_size/supersize archive out/bromite/chrome.size --apk-file out/bromite/apks/ChromePublic.apk -v
+      
       - name: Generate clangd index
-        if: ${{ github.event.inputs.debug == 'true' }}
+        if: ${{ github.event.inputs.debug == 'true' && github.event.inputs.clangd == 'true' }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
@@ -393,65 +312,4 @@ jobs:
             /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/clangd/compile_commands.json >out/bromite/bromite.idx && \
             rm -rf out/clangd
 
-      - name: Generate Supersize data
-        if: ${{ github.event.inputs.debug == 'false' }}
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          tools/binary_size/supersize archive out/bromite/chrome.size --apk-file out/bromite/apks/ChromePublic.apk -v
-          
-      - name: Build junit tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
-          if [[ TEST -eq 1 ]]; then
-            autoninja -j $GOMAJOBS -C out/bromite chrome_junit_tests
-            autoninja -j $GOMAJOBS -C out/bromite components_junit_tests
-            autoninja -j $GOMAJOBS -C out/bromite content_junit_tests
-            autoninja -j $GOMAJOBS -C out/bromite base_junit_tests
-            autoninja -j $GOMAJOBS -C out/bromite ui_junit_tests
-          fi
-          
-      - name: Build c++ tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
-          if [[ TEST -eq 1 ]]; then
-            autoninja -j $GOMAJOBS -C out/bromite network_service
-            autoninja -j $GOMAJOBS -C out/bromite unit_tests
-            autoninja -j $GOMAJOBS -C out/bromite content_browsertests
-            autoninja -j $GOMAJOBS -C out/bromite components_unittests
-            autoninja -j $GOMAJOBS -C out/bromite components_browsertests
-          fi
-          
-      - name: Build instrumentation tests
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
-          
-          git log | grep FILE:Fix-build-test-suite.patch && TEST=1
-          if [[ TEST -eq 1 ]]; then
-            autoninja -j $GOMAJOBS -C out/bromite content_shell_test_apk
-            autoninja -j $GOMAJOBS -C out/bromite chrome_public_test_apk
-          fi
-          
-      - name: Stop goma
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
 
-          echo "::group::-------- stop goma"
-          [[ "$USEGOMA" = "true" ]] && $WORKSPACE/goma/goma_ctl.py ensure_stop || true
-          [[ "$USEGOMA" = "true" ]] && find /tmp/ -maxdepth 1 -name "gomacc*" -print0 | xargs -0 rm || true
-          [[ "$USEGOMA" = "true" ]] && rm -rf /tmp/goma_lg/ || true
-          echo "::endgroup::"
