@@ -17,18 +17,9 @@ on:
         description: 'runner? [dev/ci]'
         required: true
         default: 'ci'
-      debug:
-        description: 'debug? [true/false]'
-        required: true
-        default: 'false'
-      usegoma:
-        description: 'Use goma? [true/false]'
-        required: true
-        default: 'false'
         
 env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
-  USEGOMA: ${{ github.event.inputs.usegoma }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
   GOMAJOBS: 60
@@ -37,7 +28,7 @@ jobs:
   release:
     runs-on: ${{ github.event.inputs.type }}
     env:
-      OUTPUTFILE: /storage/images/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
+      OUTPUTFILE: /storage/images/android/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
       APK: ${{ github.event.inputs.build }}_ChromePublic.apk
         
     steps:
@@ -55,7 +46,6 @@ jobs:
         uses: actions/checkout@v2
         with:
             repository: 'uazo/bromite-buildtools'
-            #ref: ${{ github.event.inputs.rtag }}
             path: 'bromite'
             fetch-depth: 1
             
@@ -75,22 +65,3 @@ jobs:
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
           ../gh_2.4.0_linux_amd64/bin/gh release create $VERSION-$BROMITE_SHA \
             ../$APK --notes "" -p
-
-#      - name: Enable proxy on container
-#        shell: bash
-#        run: |
-#          if ! [[ -z "${HTTP_PROXY}" ]]; then
-#            PROXY_ADDR=http://$(hostname -I | cut -d' ' -f1 | xargs):8118
-#            echo "PROXY_ADDR=$PROXY_ADDR" >> $GITHUB_ENV
-#            sudo iptables -D INPUT -p tcp -s localhost --dport 8118 -j ACCEPT
-#            sudo iptables -D INPUT -p tcp --dport 8118 -j DROP
-#          fi
-          
-#      - name: Release build ${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
-#        uses: softprops/action-gh-release@v1
-#        with:
-#          draft: true
-#          body: Apk for ${{ env.APK }} sha ${{ github.event.inputs.sha }}
-#          files: ${{ env.APK }}
-#        env:
-#          HTTP_PROXY: ${{ env.PROXY_ADDR }}
