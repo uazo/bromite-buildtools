@@ -13,6 +13,10 @@ ENV https_proxy=$HTTP_PROXY
 #USER lg
 WORKDIR /home/lg/working_dir
 
+RUN sudo chown lg /etc/apt/apt.conf.d/proxy.conf
+RUN sudo echo "Acquire::http::Proxy \"$HTTP_PROXY\";" >/etc/apt/apt.conf.d/proxy.conf
+RUN sudo apt-get update
+
 COPY apply-bromite-patches.sh .
 
 RUN sudo chmod +x ./apply-bromite-patches.sh && \
