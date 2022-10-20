@@ -44,5 +44,6 @@ if(_is_debug_build == "true") {
   if (target_os == "win") {
     is_cfi = false # disable it
     use_cfi_cast = false # disable it
+    use_large_pdbs = true
   }  
 }
