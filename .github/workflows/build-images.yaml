@@ -22,7 +22,7 @@ on:
         
 env:
   VERSION: ${{ github.event.inputs.version }}
-  NEW_VERSION: ""
+  NEW_VERSION: ${{ null }}
   
 name: Builds and pushes tagged image to DockerHub
 jobs:
