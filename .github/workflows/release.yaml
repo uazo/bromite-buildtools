@@ -63,6 +63,7 @@ jobs:
           WINOUT=/storage/images/win/x64/$BROMITE_SHA/
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
           
+          cd bromite
           echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
 
           echo "\`\`\`" >note
