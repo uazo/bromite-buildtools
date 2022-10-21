@@ -75,9 +75,13 @@ jobs:
           sudo cp ${{ env.OUTPUTFILE }}/apks/ChromePublic.apk ChromePublic.apk
           sudo chown runner ChromePublic.apk
           mv ChromePublic.apk $APK
+          echo Uploading $APK
           $GH release upload $VERSION-$BROMITE_SHA $APK
+          
+          echo Uploading chrome.size
           $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size
 
+          echo Uploading arm64_ninja_log_trace.html
           cp $OUTPUTFILE/ninja_log_trace.html arm64_ninja_log_trace.html
           $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
 
@@ -112,6 +116,8 @@ jobs:
           cp -r $WINOUT/locales chrome-win/locales
 
           zip -r chrome-win.zip chrome-win/
+          
+          echo Uploading chrome-win.zip
           $GH release upload $VERSION-$BROMITE_SHA chrome-win.zip
 
           TIMESTAMP=$(date +%s -r chrome-win.zip)
@@ -119,5 +125,5 @@ jobs:
           $GH release upload $VERSION-$BROMITE_SHA updateurl.txt
 
           $GH release edit $VERSION-$BROMITE_SHA -t $VERSION-$BROMITE_SHA
-          $GH release edit $VERSION-$BROMITE_SHA --draft=false
+          #$GH release edit $VERSION-$BROMITE_SHA --draft=false
           
