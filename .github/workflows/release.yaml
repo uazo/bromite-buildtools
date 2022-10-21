@@ -125,5 +125,5 @@ jobs:
           $GH release upload $VERSION-$BROMITE_SHA updateurl.txt
 
           $GH release edit $VERSION-$BROMITE_SHA -t $VERSION-$BROMITE_SHA
-          #$GH release edit $VERSION-$BROMITE_SHA --draft=false
+          $GH release edit $VERSION-$BROMITE_SHA --draft=false
           
