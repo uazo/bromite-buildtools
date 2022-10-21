@@ -12,38 +12,32 @@ if(getenv("TARGET_CPU") != "") {
 }
 # print("Target " + target_cpu)
 
-enable_kythe_annotations = true
-# clang_use_chrome_plugins = false
 if (target_os == "android") {
+  enable_kythe_annotations = true
   chrome_public_manifest_package = "org.bromite.bromite.dev"
-}
 
-if(_is_debug_build == "true") {
-# print("Debug build on")
-  is_debug = true
-  is_official_build = false
-  dcheck_always_on = true
-  if (target_os == "win") {
-    symbol_level = 0
-    use_large_pdbs = true
-  } else {
+  if(_is_debug_build == "true") {
+    # print("Debug build on")
+    is_debug = true
+    is_official_build = false
+    dcheck_always_on = true
     symbol_level = 1
-  }
-  strip_debug_info = false
-  generate_linker_map = false
+    strip_debug_info = false
+    generate_linker_map = false
 
-  # since is_cfi require use_thin_lto
-  # but not work in debug mode
-  is_cfi = false # disable it
-  use_cfi_cast = false # disable it
-} else {
-  if (target_os == "android") {
+    # since is_cfi require use_thin_lto
+    # but not work in debug mode
+    is_cfi = false # disable it
+    use_cfi_cast = false # disable it
+  } else {
     generate_linker_map = true
   }
 }
 
 if (target_os == "win") {
+  symbol_level = 0
+  use_large_pdbs = true
+
   is_cfi = false # disable it
   use_cfi_cast = false # disable it
-  use_large_pdbs = true
 }
