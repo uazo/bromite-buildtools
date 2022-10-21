@@ -62,8 +62,13 @@ jobs:
           GH=gh_2.18.1_linux_amd64/bin/gh
           WINOUT=/storage/images/win/x64/$BROMITE_SHA/
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
-          
+
           cd bromite
+
+          GH=gh_2.18.1_linux_amd64/bin/gh
+          wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.tar.gz
+          tar xfz gh_2.18.1_linux_amd64.tar.gz
+          
           echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
 
           echo "\`\`\`" >note
