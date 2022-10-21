@@ -39,8 +39,8 @@ jobs:
           BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$BROMITE_SHA | ./pup -p li.branch:last-child a text{} | xargs)
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
-          wget https://github.com/cli/cli/releases/download/v2.4.0/gh_2.4.0_linux_amd64.tar.gz
-          tar xfz gh_2.4.0_linux_amd64.tar.gz
+          wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.tar.gz
+          tar xfz gh_2.18.1_linux_amd64.tar.gz
 
       - name: Checkout 'uazo/buildtools'
         uses: actions/checkout@v2
@@ -59,9 +59,60 @@ jobs:
       - name: Create release
         shell: bash
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | gh_2.4.0_linux_amd64/bin/gh auth login --with-token
-          
-          cd bromite
+          GH=gh_2.18.1_linux_amd64/bin/gh
+          WINOUT=/storage/images/win/x64/$BROMITE_SHA/
           VERSION=v$(cat ${{ env.OUTPUTFILE }}/RELEASE)-${{ github.event.inputs.build }}
-          ../gh_2.4.0_linux_amd64/bin/gh release create $VERSION-$BROMITE_SHA \
-            ../$APK --notes "" -p
+          
+          echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
+
+          echo "\`\`\`" >note
+          echo "this is not the official release of bromite but a test version." >>note
+          echo "you can try it at your own risk." >>note
+          echo "\`\`\`" >>note
+
+          $GH release create $VERSION-$BROMITE_SHA --notes-file note -d
+          $GH release upload $VERSION-$BROMITE_SHA $APK
+          $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size
+
+          cp $OUTPUTFILE/ninja_log_trace.html arm64_ninja_log_trace.html
+          $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
+
+          mkdir chrome-win/
+          cp $WINOUT/*.manifest chrome-win/
+          cp $WINOUT/chrome.dll chrome-win/
+          cp $WINOUT/chrome.exe chrome-win/
+          cp $WINOUT/chrome_100_percent.pak chrome-win/
+          cp $WINOUT/chrome_200_percent.pak chrome-win/
+          cp $WINOUT/chrome_elf.dll chrome-win/
+          cp $WINOUT/chrome_proxy.exe chrome-win/
+          cp $WINOUT/chrome_pwa_launcher.exe chrome-win/
+          cp $WINOUT/chrome_wer.dll chrome-win/
+          cp "/win_sdk/10.0.20348.0/Windows Kits/10/Redist/D3D/x64/d3dcompiler_47.dll" chrome-win/
+          cp $WINOUT/elevation_service.exe chrome-win/
+          cp "$WINOUT/First Run" chrome-win/
+          cp $WINOUT/headless_lib_data.pak chrome-win/
+          cp $WINOUT/icudtl.dat chrome-win/
+          cp $WINOUT/libEGL.dll chrome-win/
+          cp $WINOUT/libGLESv2.dll chrome-win/
+          cp $WINOUT/Logo.png chrome-win/
+          cp $WINOUT/mojo_core.dll chrome-win/
+          cp $WINOUT/notification_helper.exe chrome-win/
+          cp $WINOUT/resources.pak chrome-win/
+          cp $WINOUT/SmallLogo.png chrome-win/
+          cp $WINOUT/snapshot_blob.bin chrome-win/
+          cp $WINOUT/VkICD_mock_icd.dll chrome-win/
+          cp $WINOUT/VkLayer_khronos_validation.dll chrome-win/
+          cp $WINOUT/vk_swiftshader.dll chrome-win/
+          cp $WINOUT/vulkan-1.dll chrome-win/
+          cp -r $WINOUT/locales chrome-win/locales
+
+          zip -r chrome-win.zip chrome-win/
+          $GH release upload $VERSION-$BROMITE_SHA chrome-win.zip
+
+          TIMESTAMP=$(date +%s -r chrome-win.zip)
+          echo >updateurl.txt "browser=chromium;os=windows;architecture=64-bit;timestamp=$TIMESTAMP;editor=uazo;channel=stable;repository=https://github.com/uazo/bromite-buildtools/releases;download=https://github.com/uazo/bromite-buildtools/releases/download/chrome-win.zip;version=$(cat $WINOUT/RELEASE);revision=1;commit=$BROMITE_SHA"
+          $GH release upload $VERSION-$BROMITE_SHA updateurl.txt
+
+          $GH release edit $VERSION-$BROMITE_SHA -t $VERSION-$BROMITE_SHA
+          $GH release edit $VERSION-$BROMITE_SHA --draft=false
+          
