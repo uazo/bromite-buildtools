@@ -3,19 +3,17 @@ declare_args() {
   _is_debug_build = ""
 }
 
-_is_debug_build = getenv("TARGET_ISDEBUG")
-
 not_needed(["_target_build", "_is_debug_build"])
 
 if(getenv("TARGET_CPU") != "") {
   target_cpu = getenv("TARGET_CPU")
 }
-# print("Target " + target_cpu)
 
 if (target_os == "android") {
   enable_kythe_annotations = true
   chrome_public_manifest_package = "org.bromite.bromite.dev"
 
+  _is_debug_build = getenv("TARGET_ISDEBUG")
   if(_is_debug_build == "true") {
     # print("Debug build on")
     is_debug = true
@@ -35,6 +33,7 @@ if (target_os == "android") {
 }
 
 if (target_os == "win") {
+  target_cpu = "x64"
   symbol_level = 0
   use_large_pdbs = true
 
