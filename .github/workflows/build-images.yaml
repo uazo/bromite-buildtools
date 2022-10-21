@@ -98,7 +98,7 @@ jobs:
           fi
 
       - name: Create issue ${{ env.VERSION }}
-        if: ${{ env.NEW_VERSION != "" }}
+        if: "${{ env.NEW_VERSION != '' }}"
         shell: bash
         run: |
           GH=gh_2.18.1_linux_amd64/bin/gh
