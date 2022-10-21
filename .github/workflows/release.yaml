@@ -49,13 +49,6 @@ jobs:
             path: 'bromite'
             fetch-depth: 1
             
-      - name: Copy artifacts
-        shell: bash
-        run: |
-          sudo cp ${{ env.OUTPUTFILE }}/apks/ChromePublic.apk ChromePublic.apk
-          sudo chown runner ChromePublic.apk
-          mv ChromePublic.apk $APK
-
       - name: Create release
         shell: bash
         run: |
@@ -77,12 +70,18 @@ jobs:
           echo "\`\`\`" >>note
 
           $GH release create $VERSION-$BROMITE_SHA --notes-file note -d
+
+          # android
+          sudo cp ${{ env.OUTPUTFILE }}/apks/ChromePublic.apk ChromePublic.apk
+          sudo chown runner ChromePublic.apk
+          mv ChromePublic.apk $APK
           $GH release upload $VERSION-$BROMITE_SHA $APK
           $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size
 
           cp $OUTPUTFILE/ninja_log_trace.html arm64_ninja_log_trace.html
           $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
 
+          # windows
           mkdir chrome-win/
           cp $WINOUT/*.manifest chrome-win/
           cp $WINOUT/chrome.dll chrome-win/
