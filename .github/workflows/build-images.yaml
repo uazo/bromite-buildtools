@@ -3,7 +3,7 @@ permissions:
   checks: none
   contents: none
   deployments: none
-  issues: none
+  issues: write
   packages: none
   pull-requests: none
   repository-projects: none
@@ -22,6 +22,7 @@ on:
         
 env:
   VERSION: ${{ github.event.inputs.version }}
+  NEW_VERSION: ""
   
 name: Builds and pushes tagged image to DockerHub
 jobs:
@@ -74,6 +75,7 @@ jobs:
                 bromite-buildtools/images/build-deps/.
               
               docker push uazo/build-deps:$VERSION
+              echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
             fi
           fi          
 
@@ -91,6 +93,20 @@ jobs:
                 bromite-buildtools/images/chr-source/.
                 
               docker push uazo/chromium:$VERSION
+              echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
             fi
           fi
+
+      - name: Create issue ${{ env.VERSION }}
+        if: ${{ env.NEW_VERSION != "" }}
+        shell: bash
+        run: |
+          GH=gh_2.18.1_linux_amd64/bin/gh
+          wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.tar.gz
+          tar xfz gh_2.18.1_linux_amd64.tar.gz
+          
+          echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
+          $GH issue create -t "$VERSION: new stable chromium version" -b ""
+          
+          
           
