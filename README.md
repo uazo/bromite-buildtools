@@ -35,7 +35,31 @@ RUNNER_LABELS=dev
 ALLOWEDAUTHORSLIST=uazo
 ```
 
-5. Start the runner
+5. Prepare for windows cross build
+Follow the [instructions](https://chromium.googlesource.com/chromium/src.git/+/HEAD/docs/win_cross.md#if-you_re-not-at-google) to create the zip with the toolchain
+
+example:
+```
+cd path\to\depot_tools\win_toolchain
+D:\Downloads\depot_tools\win_toolchain> package_from_installed.py --allow_multiple_vs_installs -w 10.0.20348.0 2019
+```
+
+create the `/casefold` in the unix host with [casefold attribute](https://unix.stackexchange.com/questions/558977/how-to-enable-new-in-kernel-5-2-case-insensitivity-for-ext4-on-a-given-directory) and unzip the contents into.
+```
+~$ ls /casefold/10.0.20348.0/ -la
+total 36
+drwxr-xr-x 8 root root 4096 Oct  5 13:20  .
+drwxr-xr-x 5 root root 4096 Oct  5 13:17  ..
+drwxr-xr-x 6 root root 4096 Oct  5 13:19 'DIA SDK'
+drwxr-xr-x 2 root root 4096 Oct  5 13:20  sys32
+drwxr-xr-x 2 root root 4096 Oct  5 13:20  sys64
+drwxr-xr-x 2 root root 4096 Oct  5 13:20  sysarm64
+drwxr-xr-x 5 root root 4096 Oct  5 13:20  VC
+-rw-rw-rw- 1 root root    5 Sep 26 17:05  VS_VERSION
+drwxr-xr-x 3 root root 4096 Oct  5 13:20 'Windows Kits'
+```
+
+6. Start the runner
 ```
 cd bromite-buildtools/images/github-runner/
 ./start-runner.sh
