@@ -18,7 +18,7 @@ on:
         required: false
         default: ''
   schedule: 
-   - cron: '0 5 * * *'
+   - cron: '0 1 * * *'
         
 env:
   VERSION: ${{ github.event.inputs.version }}
@@ -101,10 +101,11 @@ jobs:
         if: "${{ env.NEW_VERSION != '' }}"
         shell: bash
         run: |
-          GH=gh_2.18.1_linux_amd64/bin/gh
+          GH=../gh_2.18.1_linux_amd64/bin/gh
           wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.tar.gz
           tar xfz gh_2.18.1_linux_amd64.tar.gz
           
+          cd bromite-buildtools
           echo ${{ secrets.GITHUB_TOKEN }} | $GH auth login --with-token
           $GH issue create -t "$VERSION: new stable chromium version" -b ""
           
