@@ -19,7 +19,7 @@ jobs:
     runs-on: ci
     
     container:
-      image: ubuntu:latest
+      image: uazo/build-deps:latest
         
     steps:
           
