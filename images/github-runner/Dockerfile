@@ -109,10 +109,10 @@ RUN chmod +x ./patched/runsvc.sh /usr/local/bin/startup.sh
 
 USER runner
 
-ENV HTTP_PROXY="http://127.0.0.1:8118"
-ENV HTTPS_PROXY="http://127.0.0.1:8118"
-ENV http_proxy="http://127.0.0.1:8118"
-ENV https_proxy="http://127.0.0.1:8118"
+ENV HTTP_PROXY="http://172.18.0.1:8118"
+ENV HTTPS_PROXY="http://172.18.0.1:8118"
+ENV http_proxy="http://172.18.0.1:8118"
+ENV https_proxy="http://172.18.0.1:8118"
 COPY docker.default /etc/default/docker
 COPY proxy.conf /etc/apt/apt.conf.d/proxy.conf
 
