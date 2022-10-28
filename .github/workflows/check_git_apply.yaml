@@ -21,6 +21,12 @@ jobs:
         REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
         USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
         USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal      
+        HTTPS_PROXY: http://172.18.0.1:8118
+        HTTP_PROXY: http://172.18.0.1:8118
+        http_proxy: http://172.18.0.1:8118
+        https_proxy: http://172.18.0.1:8118
+      volumes:
+        - /tmp/proxy:/tmp/proxy
         
     steps:
           
