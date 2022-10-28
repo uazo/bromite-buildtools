@@ -25,13 +25,7 @@ jobs:
     steps:
           
       - name: Prepare container
-        run: |
-          # reset proxy env
-          HTTP_PROXY=
-          HTTPS_PROXY=
-          http_proxy=
-          https_proxy=
-          
+        run: |        
           sudo apt update
           sudo apt install -y wget unzip tar sed dos2unix patchutils wiggle curl git
           
