@@ -20,8 +20,8 @@ jobs:
       image: uazo/build-deps:latest
       env:
         GITHUB_SHA: ${{ github.event.inputs.rtag }}
-        REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
-        USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
+        REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
+        USELOCALIMAGE: true        # CUSTOM RUNNER: permit use of local images
       volumes:
         - /tmp/proxy:/tmp/proxy
         
