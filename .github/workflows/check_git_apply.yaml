@@ -16,8 +16,8 @@ env:
   GITHUB_SHA: ${{ github.event.inputs.rtag }}
   USEINTERNALNETWORK: false  # CUSTOM RUNNER: create the docker network as internal
   REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
-  HTTPS_PROXY: http://172.18.0.1:8118
-  HTTP_PROXY: http://172.18.0.1:8118
+  https_proxy: http://172.18.0.1:8118
+  http_proxy: http://172.18.0.1:8118
 jobs:
   get-git-apply:
     runs-on: ci
