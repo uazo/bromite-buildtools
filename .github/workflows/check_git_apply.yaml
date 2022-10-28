@@ -32,8 +32,8 @@ jobs:
           http_proxy=
           https_proxy=
           
-          apt update
-          apt install -y wget unzip tar sed dos2unix patchutils wiggle curl git
+          sudo apt update
+          sudo apt install -y wget unzip tar sed dos2unix patchutils wiggle curl git
           
           wget https://github.com/uazo/superpatch/releases/latest/download/SuperPatchUtils.tar.gz
           tar xfz SuperPatchUtils.tar.gz
