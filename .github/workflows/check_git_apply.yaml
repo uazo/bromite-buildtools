@@ -23,7 +23,7 @@ jobs:
         GITHUB_SHA: ${{ github.event.inputs.rtag }}
         USELOCALIMAGE: true        # CUSTOM RUNNER: permit use of local images
         REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
-        GH_ENV: /__w/_temp/_runner_file_commands
+        GH_ENV: "/__w/_temp/_runner_file_commands"
       volumes:
         - /tmp/proxy:/tmp/proxy
         
