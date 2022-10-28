@@ -7,7 +7,11 @@ on:
         description: 'uazo/bromite TAG or COMMIT'
         required: true
         default: ''
-
+      branch:
+        description: 'uazo/bromite BRANCH'
+        required: true
+        default: ''
+        
 env:
   GITHUB_SHA: ${{ github.event.inputs.rtag }}
   USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
@@ -23,7 +27,6 @@ jobs:
         GITHUB_SHA: ${{ github.event.inputs.rtag }}
         USELOCALIMAGE: true        # CUSTOM RUNNER: permit use of local images
         REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
-        GH_ENV: "/__w/_temp/_runner_file_commands"
       volumes:
         - /tmp/proxy:/tmp/proxy
         
@@ -57,26 +60,21 @@ jobs:
           unzip pup_v0.4.0_linux_amd64.zip
           rm pup_v0.4.0_linux_amd64.zip
           BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$GITHUB_SHA | ./pup -p li.branch:last-child a text{})
-          echo "BRANCH=$BRANCH" >> $GH_ENV
           
           test -d /github/home/.vscode-server || sudo mkdir /github/home/.vscode-server
           sudo chown lg /github/home/.vscode-server
           
-      - name: Checkout 'uazo/bromite' ${{ env.BRANCH }}
+      - name: Checkout 'uazo/bromite'
         uses: actions/checkout@v2
         with:
             repository: 'uazo/bromite'
             ref: ${{ github.event.inputs.rtag }}
             path: 'bromite'
             fetch-depth: 1
-
-      - name: Check chromium version
+    
+      - name: Download chromium sources
         run: |
           VERSION=$(cat bromite/build/RELEASE)
-          echo "VERSION=$VERSION" >> $GH_ENV
-          
-      - name: Download chromium ${{ env.VERSION }} sources
-        run: |
           ./bin/SuperPatchUtils bromite $GITHUB_SHA chromium/src
           cd chromium/src
           git init
@@ -116,26 +114,21 @@ jobs:
         run: |
           cd bromite
           CHANGES=0 && git diff --quiet || CHANGES=1
-          echo "CHANGES=$CHANGES" >> $GH_ENV
           
           if [[ CHANGES -eq 1 ]]; then
               git add build/patches/*.patch
               git diff --name-only --staged
-              # MESSAGE=$(git diff --name-only --staged)
-              # echo "MESSAGE='$MESSAGE'" >> $GH_ENV
           fi
           
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@dcd5fd746d53dd8de555c0f10bca6c35628be47a #v3.12.0
-        if: env.CHANGES == '1'
         with:
           path: bromite
-          base: ${{ env.BRANCH }}
-          #push-to-fork: uazo/bromite
+          base: ${{ github.event.inputs.branch }}
           add-paths: |
             build/patches/*.patch
           commit-message: 'AUTOMATED - git apply results'
-          title: Git apply result for ${{ env.BRANCH }} branch
+          title: Git apply result for ${{ github.event.inputs.branch }} branch
           body: ${{ env.MESSAGE }}
           delete-branch: true
           branch-suffix: short-commit-hash
