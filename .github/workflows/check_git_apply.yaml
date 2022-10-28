@@ -57,6 +57,9 @@ jobs:
 
           sudo apt-get update && \
             sudo apt-get install -y aspnetcore-runtime-6.0
+            
+          test -d /github/home/.vscode-server || sudo mkdir /github/home/.vscode-server
+          sudo chown lg /github/home/.vscode-server
           
       - name: Checkout 'uazo/bromite' ${{ env.BRANCH }}
         uses: actions/checkout@v2
