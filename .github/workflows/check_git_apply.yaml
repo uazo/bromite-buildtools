@@ -10,6 +10,9 @@ on:
 
 env:
   GITHUB_SHA: ${{ github.event.inputs.rtag }}  
+  REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
+  USELOCALIMAGE: false      # CUSTOM RUNNER: permit use of local images
+  USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
 
 jobs:
   get-git-apply:
@@ -17,15 +20,17 @@ jobs:
     
     container:
       image: ubuntu:latest
-      env:
-        REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
-        USELOCALIMAGE: false      # CUSTOM RUNNER: permit use of local images
-        USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
         
     steps:
           
       - name: Prepare container
         run: |
+          # reset proxy env
+          HTTP_PROXY=
+          HTTPS_PROXY=
+          http_proxy=
+          https_proxy=
+          
           apt update
           apt install -y wget unzip tar sed dos2unix patchutils wiggle curl git
           
