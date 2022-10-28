@@ -23,7 +23,7 @@ jobs:
         GITHUB_SHA: ${{ github.event.inputs.rtag }}
         USELOCALIMAGE: true        # CUSTOM RUNNER: permit use of local images
         REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
-        GITHUB_ENV: /__w/_temp/_runner_file_commands
+        GH_ENV: /__w/_temp/_runner_file_commands
       volumes:
         - /tmp/proxy:/tmp/proxy
         
@@ -57,7 +57,7 @@ jobs:
           unzip pup_v0.4.0_linux_amd64.zip
           rm pup_v0.4.0_linux_amd64.zip
           BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$GITHUB_SHA | ./pup -p li.branch:last-child a text{})
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          echo "BRANCH=$BRANCH" >> $GH_ENV
           
           test -d /github/home/.vscode-server || sudo mkdir /github/home/.vscode-server
           sudo chown lg /github/home/.vscode-server
@@ -73,7 +73,7 @@ jobs:
       - name: Check chromium version
         run: |
           VERSION=$(cat bromite/build/RELEASE)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GH_ENV
           
       - name: Download chromium ${{ env.VERSION }} sources
         run: |
@@ -116,13 +116,13 @@ jobs:
         run: |
           cd bromite
           CHANGES=0 && git diff --quiet || CHANGES=1
-          echo "CHANGES=$CHANGES" >> $GITHUB_ENV
+          echo "CHANGES=$CHANGES" >> $GH_ENV
           
           if [[ CHANGES -eq 1 ]]; then
               git add build/patches/*.patch
               git diff --name-only --staged
               # MESSAGE=$(git diff --name-only --staged)
-              # echo "MESSAGE='$MESSAGE'" >> $GITHUB_ENV
+              # echo "MESSAGE='$MESSAGE'" >> $GH_ENV
           fi
           
       - name: Create Pull Request
