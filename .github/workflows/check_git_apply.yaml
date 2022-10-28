@@ -54,10 +54,10 @@ jobs:
           
           git clone https://github.com/uazo/bromite-buildtools
           
-          wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
-          unzip pup_v0.4.0_linux_amd64.zip
-          rm pup_v0.4.0_linux_amd64.zip
-          BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$GITHUB_SHA | ./pup -p li.branch:last-child a text{})
+          #wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
+          #unzip pup_v0.4.0_linux_amd64.zip
+          #rm pup_v0.4.0_linux_amd64.zip
+          #BRANCH=$(curl https://github.com/uazo/bromite/branch_commits/$GITHUB_SHA | ./pup -p li.branch:last-child a text{})
           
           test -d /github/home/.vscode-server || sudo mkdir /github/home/.vscode-server
           sudo chown lg /github/home/.vscode-server
