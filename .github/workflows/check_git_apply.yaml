@@ -11,7 +11,8 @@ on:
 env:
   GITHUB_SHA: ${{ github.event.inputs.rtag }}
   USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
-
+  REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
+        
 jobs:
   get-git-apply:
     runs-on: ci
@@ -20,7 +21,6 @@ jobs:
       image: uazo/build-deps:latest
       env:
         GITHUB_SHA: ${{ github.event.inputs.rtag }}
-        REMOVEDOCKERSUPPORT: false # CUSTOM RUNNER: remove sharing of docker socket
         USELOCALIMAGE: true        # CUSTOM RUNNER: permit use of local images
       volumes:
         - /tmp/proxy:/tmp/proxy
