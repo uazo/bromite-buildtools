@@ -11,7 +11,7 @@ on:
 env:
   GITHUB_SHA: ${{ github.event.inputs.rtag }}  
   REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
-  USELOCALIMAGE: false      # CUSTOM RUNNER: permit use of local images
+  USELOCALIMAGE: true       # CUSTOM RUNNER: permit use of local images
   USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
 
 jobs:
