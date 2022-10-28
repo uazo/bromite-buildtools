@@ -14,6 +14,14 @@ env:
 jobs:
   build:
     runs-on: ci
+    
+    container:
+      image: ubuntu:latest
+      env:
+        REMOVEDOCKERSUPPORT: true # CUSTOM RUNNER: remove sharing of docker socket
+        USELOCALIMAGE: false      # CUSTOM RUNNER: permit use of local images
+        USEINTERNALNETWORK: false # CUSTOM RUNNER: create the docker network as internal
+        
     steps:
           
       - name: Prepare container
