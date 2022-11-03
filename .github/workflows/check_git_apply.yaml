@@ -129,7 +129,6 @@ jobs:
           token: ${{ secrets.BROMITE_PULLS_PAT }}
           path: bromite
           base: ${{ github.event.inputs.branch }}
-          push-to-fork: uazo/bromite
           add-paths: |
             build/patches/*.patch
           commit-message: 'AUTOMATED - git apply results'
