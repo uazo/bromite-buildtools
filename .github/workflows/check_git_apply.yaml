@@ -76,7 +76,7 @@ jobs:
     
       - name: Create chromium sources
         run: |
-          sleep 2h
+          #sleep 2h
           VERSION=$(cat bromite/build/RELEASE)
           ./bin/SuperPatchUtils bromite $BROMITE_SHA chromium/src
           
