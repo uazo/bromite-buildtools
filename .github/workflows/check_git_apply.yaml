@@ -64,8 +64,6 @@ jobs:
           
           test -d /github/home/.vscode-server || sudo mkdir /github/home/.vscode-server
           sudo chown lg /github/home/.vscode-server
-
-          ./bin/SuperPatchUtils bromite $GITHUB_SHA chromium/src
           
       - name: Checkout 'uazo/bromite'
         uses: actions/checkout@v2
@@ -77,8 +75,10 @@ jobs:
     
       - name: Create chromium sources
         run: |
-          #sleep 2h
+          sleep 2h
           VERSION=$(cat bromite/build/RELEASE)
+          ./bin/SuperPatchUtils bromite $GITHUB_SHA chromium/src
+          
           cd chromium/src
           git init
           git config user.email "you@example.com"
