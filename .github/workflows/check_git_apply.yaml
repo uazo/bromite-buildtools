@@ -74,8 +74,9 @@ jobs:
             fetch-depth: 1
     
       - name: Download chromium sources
+        shell: bash
         run: |
-          sleep 2h
+          #sleep 2h
           export HTTPS_PROXY=http://172.18.0.1:8118
           export HTTP_PROXY=http://172.18.0.1:8118
           export http_proxy=http://172.18.0.1:8118
