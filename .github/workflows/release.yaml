@@ -119,6 +119,9 @@ jobs:
           
           echo Uploading chrome-win.zip
           $GH release upload $VERSION-$BROMITE_SHA chrome-win.zip
+          
+          # workaround for https://github.com/cli/cli/issues/6599
+          sleep 30s
 
           TIMESTAMP=$(date +%s -r chrome-win.zip)
           echo >updateurl.txt "browser=chromium;os=windows;architecture=64-bit;timestamp=$TIMESTAMP;editor=uazo;channel=stable;repository=https://github.com/uazo/bromite-buildtools/releases;download=https://github.com/uazo/bromite-buildtools/releases/latest/download/chrome-win.zip;version=$(cat $WINOUT/RELEASE);revision=1;commit=$BROMITE_SHA"
