@@ -79,11 +79,13 @@ jobs:
           $GH release upload $VERSION-$BROMITE_SHA $APK
           
           echo Uploading chrome.size
-          $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size
+          test $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size && \
+            $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE/chrome.size
 
           echo Uploading arm64_ninja_log_trace.html
-          cp $OUTPUTFILE/ninja_log_trace.html arm64_ninja_log_trace.html
-          $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
+          test $OUTPUTFILE/ninja_log_trace.html && \
+            cp $OUTPUTFILE/ninja_log_trace.html arm64_ninja_log_trace.html && \
+            $GH release upload $VERSION-$BROMITE_SHA arm64_ninja_log_trace.html
 
           # windows
           mkdir chrome-win/
