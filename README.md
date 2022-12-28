@@ -64,3 +64,30 @@ drwxr-xr-x 3 root root 4096 Oct  5 13:20 'Windows Kits'
 cd bromite-buildtools/images/github-runner/
 ./start-runner.sh
 ```
+
+### Test Android Version
+
+Simply download latest build on https://github.com/uazo/bromite-buildtools/releases/latest
+
+### Test Windows Version
+
+1. Download https://github.com/henrypp/chrlauncher/releases
+2. Create a `chrlauncher.ini`
+
+```
+[chrlauncher]
+
+# Custom Chromium update URL (string):
+ChromiumUpdateUrl=https://github.com/uazo/bromite-buildtools/releases/latest/download/updateurl.txt
+
+# Command line for Chromium (string):
+# See here: http://peter.sh/experiments/chromium-command-line-switches/
+ChromiumCommandLine=--user-data-dir=".\User Data" --no-default-browser-check
+
+# Chromium executable file name (string):
+ChromiumBinary=chrome.exe
+
+# Chromium binaries directory (string):
+# Relative (to chrlauncher directory) or full path (env. variables supported).
+ChromiumDirectory=.\bin
+```
