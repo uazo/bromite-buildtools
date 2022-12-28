@@ -36,6 +36,11 @@ if (target_os == "win") {
   target_cpu = "x64"
   symbol_level = 0
   use_large_pdbs = true
+  
+  enable_pdf = true
+  pdf_is_complete_lib = true
+  enable_plugins = true
+  enable_ppapi = false  
 
   is_cfi = false # disable it
   use_cfi_cast = false # disable it
