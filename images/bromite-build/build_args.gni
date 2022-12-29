@@ -10,6 +10,7 @@ if(getenv("TARGET_CPU") != "") {
 }
 
 if (target_os == "android") {
+  target_os = "android" # fix traffic annotation auditor
   enable_kythe_annotations = true
   chrome_public_manifest_package = "org.bromite.bromite.dev"
 
@@ -33,6 +34,7 @@ if (target_os == "android") {
 }
 
 if (target_os == "win") {
+  target_os = "win" # fix traffic annotation auditor
   target_cpu = "x64"
   symbol_level = 0
   use_large_pdbs = true
