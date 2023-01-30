@@ -73,6 +73,7 @@ index ed004ac8f1fe1a5107db8b1f5c02c4ba957daef4..bbb79da561ddec497863230cd99ffbe9
 +
  int NinjaMain::ToolCompilationDatabase(const Options* options, int argc, char* argv[]) {
 +  std::vector<Edge*>* edges_to_process = &(state_.edges_);
++  std::vector<Edge*> user_interested_edges;
 +
 +  if (options->user_given_target) {
 +    string err;
@@ -83,7 +84,6 @@ index ed004ac8f1fe1a5107db8b1f5c02c4ba957daef4..bbb79da561ddec497863230cd99ffbe9
 +      return 1;
 +    }
 +
-+    std::vector<Edge*> user_interested_edges;
 +    if (!GetAllDependentEdges(user_given_target, &user_interested_edges))
 +      return 1;
 +    edges_to_process = &user_interested_edges;
