@@ -117,7 +117,7 @@ jobs:
           cp $WINOUT/vulkan-1.dll chrome-win/
           cp -r $WINOUT/locales chrome-win/locales
 
-          test chrome-win.zip && rm chrome-win.zip
+          #test chrome-win.zip && rm chrome-win.zip
           zip -r chrome-win.zip chrome-win/
           
           echo Uploading chrome-win.zip
