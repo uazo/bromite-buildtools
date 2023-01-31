@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ -z "${DOCKER_SOCK}" ]]; then
-   echo "Please set DOCKER_SOCK env variable"
+if [[ -z "${INDEX_VERSION}" ]]; then
+   echo "Please set INDEX_VERSION env variable"
    exit 1
 fi
 
@@ -10,10 +10,9 @@ if [[ -z "${DEV_CONTAINER}" ]]; then
    exit 1
 fi
 
-sudo docker -H $DOCKER_SOCK cp $DEV_CONTAINER:/home/lg/working_dir/chromium/src/out/bromite/bromite.idx .
-sudo docker -H $DOCKER_SOCK cp $DEV_CONTAINER:/home/lg/working_dir/bromite/build/RELEASE .
+cp /storage/images/android/x64/$INDEX_VERSION/bromite.idx .
+cp /storage/images/android/x64/$INDEX_VERSION/RELEASE
 
-#INDEX_VERSION=$(cat RELEASE)
 DOCKER_BUILDKIT=1 docker build -t uazo/bromite-remote-index:$INDEX_VERSION \
                 --progress plain \
                 --no-cache \
