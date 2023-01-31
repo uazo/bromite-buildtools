@@ -5,11 +5,6 @@ if [[ -z "${INDEX_VERSION}" ]]; then
    exit 1
 fi
 
-if [[ -z "${DEV_CONTAINER}" ]]; then
-   echo "Please set DEV_CONTAINER env variable"
-   exit 1
-fi
-
 cp /storage/images/android/x64/$INDEX_VERSION/bromite.idx .
 cp /storage/images/android/x64/$INDEX_VERSION/RELEASE
 
