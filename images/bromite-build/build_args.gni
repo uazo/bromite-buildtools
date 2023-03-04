@@ -11,7 +11,7 @@ if(getenv("TARGET_CPU") != "") {
 
 if (target_os == "android") {
   target_os = "android" # fix traffic annotation auditor
-  enable_kythe_annotations = true
+  #enable_kythe_annotations = true
   chrome_public_manifest_package = "org.bromite.bromite.dev"
 
   _is_debug_build = getenv("TARGET_ISDEBUG")
