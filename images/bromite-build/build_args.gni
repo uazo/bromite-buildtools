@@ -30,6 +30,7 @@ if (target_os == "android") {
     use_cfi_cast = false # disable it
   } else {
     generate_linker_map = true
+    use_relative_vtables_abi = false
   }
 }
 
