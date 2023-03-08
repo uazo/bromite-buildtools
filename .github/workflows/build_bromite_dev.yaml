@@ -114,14 +114,14 @@ jobs:
             fi
           fi
 
-      - name: Building bromite container ${{ env.BROMITE_SHA }}
+      - name: Building bromite container ${{ env.VERSION }}-${{ env.BROMITE_SHA }}
         shell: bash
         run: |
-          IS_PRESENT=$(docker inspect --type=image uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+          IS_PRESENT=$(docker inspect --type=image uazo/bromite:$VERSION-$BROMITE_SHA > /dev/null ; echo $?)
           if [ $IS_PRESENT -ne "0" ]; then
-            IS_PRESENT=$(docker manifest inspect uazo/bromite:$BROMITE_SHA > /dev/null ; echo $?)
+            IS_PRESENT=$(docker manifest inspect uazo/bromite:$VERSION-$BROMITE_SHA > /dev/null ; echo $?)
             if [ $IS_PRESENT -ne "0" ]; then
-              DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$BROMITE_SHA --progress plain \
+              DOCKER_BUILDKIT=1 docker build -t uazo/bromite:$VERSION-$BROMITE_SHA --progress plain \
                 --build-arg BROMITE_SHA=$BROMITE_SHA \
                 --build-arg VERSION=$VERSION \
                 --build-arg HTTP_PROXY="$PROXY_ADDR" \
@@ -129,15 +129,16 @@ jobs:
             fi
           fi
           
-      - name: Building bromite-build container ${{ env.BROMITE_SHA }}
+      - name: Building bromite-build container ${{ env.VERSION }}-${{ env.BROMITE_SHA }}
         shell: bash
         run: |
-          IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
+          IS_PRESENT=$(docker inspect --type=image uazo/bromite-build:$VERSION-$BROMITE_SHA > /dev/null ; echo $?)
           if [ $IS_PRESENT -ne "0" ]; then
-            IS_PRESENT=$(docker manifest inspect uazo/bromite-build:$BROMITE_SHA > /dev/null ; echo $?)
+            IS_PRESENT=$(docker manifest inspect uazo/bromite-build:$VERSION-$BROMITE_SHA > /dev/null ; echo $?)
             if [ $IS_PRESENT -ne "0" ]; then
-              DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$BROMITE_SHA --progress plain \
+              DOCKER_BUILDKIT=1 docker build -t uazo/bromite-build:$VERSION-$BROMITE_SHA --progress plain \
                 --build-arg BROMITE_SHA=$BROMITE_SHA \
+                --build-arg VERSION=$VERSION \
                 --build-arg HTTP_PROXY="$PROXY_ADDR" \
                 --no-cache \
                 bromite-buildtools/images/bromite-build/.
@@ -151,7 +152,7 @@ jobs:
           if [ $IS_PRESENT -eq "0" ]; then
             docker rmi uazo/bromite-build:build
           fi
-          docker tag uazo/bromite-build:$BROMITE_SHA uazo/bromite-build:build
+          docker tag uazo/bromite-build:$VERSION-$BROMITE_SHA uazo/bromite-build:build
           
   build:
     runs-on: ${{ github.event.inputs.type }}
