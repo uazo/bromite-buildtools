@@ -13,6 +13,13 @@ else
 	echo Exporting new $patch ~/bromite/build/patches-new/$PATCH_FILE
 fi
 
+PATCH_MESSAGE=$(git -C ~/chromium/src/ show -s $patch)
+if [[ $PATCH_MESSAGE == *NOEXPORT:* ]] ;
+then
+    echo Request NO export
+	exit 0
+fi
+
 git -C ~/chromium/src/ format-patch -1 --keep-subject --stdout --full-index --zero-commit --no-signature $patch >~/bromite/build/patches-new/$PATCH_FILE
 echo "   exported"
 
