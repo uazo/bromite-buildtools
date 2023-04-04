@@ -242,7 +242,7 @@ jobs:
         run: |
           cd $WORKSPACE
           $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite/.ninja_log >$WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
-          $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
+          python3 $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
           
       - name: Build Bromite Windows
         if: ${{ github.event.inputs.target_os == 'win' || github.event.inputs.target_os == 'all' }}
@@ -270,7 +270,7 @@ jobs:
         run: |
           cd $WORKSPACE
           $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite_win/.ninja_log >$WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
-          $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
+          python3 $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
 
       - name: Generate breakpad symbols
         if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
