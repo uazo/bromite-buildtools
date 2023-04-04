@@ -172,9 +172,9 @@ jobs:
         KYTHE_ROOT_DIRECTORY: /home/lg/working_dir/chromium/src
         KYTHE_OUTPUT_DIRECTORY: /home/lg/working_dir/chromium/src/out/bromite/kythe
         # cross build
-        DEPOT_TOOLS_WIN_TOOLCHAIN_BASE_URL: /win_sdk/10.0.20348.0/
-        WINDOWSSDKDIR: "/win_sdk/10.0.20348.0/Windows Kits/10/"
-        GYP_MSVS_OVERRIDE_PATH: /win_sdk/10.0.20348.0/
+        DEPOT_TOOLS_WIN_TOOLCHAIN_BASE_URL: /win_sdk/10.0.22621.0/
+        WINDOWSSDKDIR: "/win_sdk/10.0.22621.0/Windows Kits/10/"
+        GYP_MSVS_OVERRIDE_PATH: /win_sdk/10.0.22621.0/
         # compile in debug mode
         TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
         TARGET_CPU: ${{ github.event.inputs.build }}
