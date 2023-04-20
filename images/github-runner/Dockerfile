@@ -77,7 +77,7 @@ RUN useradd -m runner \
 
 # Build args
 ARG TARGETPLATFORM=amd64
-ARG RUNNER_VERSION=2.302.5
+ARG RUNNER_VERSION=2.303.1
 WORKDIR /runner
 
 # Runner download supports amd64 as x64
