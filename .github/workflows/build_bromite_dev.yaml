@@ -23,17 +23,17 @@ on:
         required: true
         default: 'all'
       build:
-        description: 'android arch [arm64/x64]'
+        description: 'android arch [arm64/x64/all]'
         required: true
-        default: 'x64'
+        default: 'all'
       type:
         description: 'runner? [dev/ci]'
         required: true
-        default: 'dev'
+        default: 'ci'
       debug:
         description: 'debug? [true/false]'
         required: true
-        default: 'true'
+        default: 'false'
       clangd:
         description: 'clangd? [true/false]'
         required: true
@@ -177,10 +177,10 @@ jobs:
         GYP_MSVS_OVERRIDE_PATH: /win_sdk/10.0.22621.0/
         # compile in debug mode
         TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
-        TARGET_CPU: ${{ github.event.inputs.build }}
         TARGET_OS: ${{ github.event.inputs.target_os }}
       volumes:
-        - /storage/images/android/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/android/arm64/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/android/x64/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_x64
         - /storage/images/win/x64/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_win
         - /tmp/proxy:/tmp/proxy
         - /win_sdk:/win_sdk
@@ -216,15 +216,15 @@ jobs:
           sudo chmod g-rxw /run/user/1000/
           sudo chmod o-rxw /run/user/1000/
           
-      - name: Build Bromite Android
-        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
+      - name: Build Bromite Android arm64
+        if: (${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}) && (${{ github.event.inputs.build == 'arm64' || github.event.inputs.build == 'all' }} )
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
           cd $WORKSPACE/chromium/src
 
           echo "::group::-------- gn gen"
-          gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) " out/bromite    
+          gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) target_cpu = \"arm64\" " out/bromite    
           echo "::endgroup::"
 
           echo "::group::-------- gn args"
@@ -236,14 +236,14 @@ jobs:
 
           cp ../../bromite/build/RELEASE out/bromite
 
-      - name: Get ninja logs Android
-        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
+      - name: Get ninja logs Android arm64
+        if: (${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}) && (${{ github.event.inputs.build == 'arm64' || github.event.inputs.build == 'all' }} )
         shell: bash
         run: |
           cd $WORKSPACE
           $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite/.ninja_log >$WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
           python3 $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite/ninja_log_trace.json
-          
+
       - name: Build Bromite Windows
         if: ${{ github.event.inputs.target_os == 'win' || github.event.inputs.target_os == 'all' }}
         shell: bash
@@ -272,7 +272,36 @@ jobs:
           $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite_win/.ninja_log >$WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
           python3 $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite_win/ninja_log_trace.json
 
-      - name: Generate breakpad symbols
+      - name: Build Bromite Android x64
+        if: (${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}) && (${{ github.event.inputs.build == 'x64' || github.event.inputs.build == 'all' }} )
+        shell: bash
+        run: |
+          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+          cd $WORKSPACE/chromium/src
+
+          echo "::group::-------- gn gen"
+          gn gen --args="import(\"/home/lg/working_dir/bromite/build/bromite.gn_args\") $(cat ../../build_args.gni) target_cpu = \"x64\" " out/bromite_x64
+          echo "::endgroup::"
+
+          echo "::group::-------- gn args"
+          gn args out/bromite_x64/ --list --short
+          gn args out/bromite_x64/ --list >out/bromite_x64/gn_list
+          echo "::endgroup::"
+
+          autoninja -C out/bromite_x64 chrome_public_apk
+
+          cp ../../bromite/build/RELEASE out/bromite_x64
+
+      - name: Get ninja logs Android x64
+        if: (${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}) && (${{ github.event.inputs.build == 'x64' || github.event.inputs.build == 'all' }} )
+        shell: bash
+        run: |
+          cd $WORKSPACE
+          $WORKSPACE/ninjatracing/ninjatracing $WORKSPACE/chromium/src/out/bromite_x64/.ninja_log >$WORKSPACE/chromium/src/out/bromite_x64/ninja_log_trace.json
+          python3 $WORKSPACE/chromium/src/third_party/catapult/tracing/bin/trace2html $WORKSPACE/chromium/src/out/bromite_x64/ninja_log_trace.json
+
+          
+      - name: Generate breakpad symbols arm64
         if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
         shell: bash
         run: |
@@ -312,5 +341,3 @@ jobs:
               -t compdb cc cxx objc objcxx >$WORKSPACE/chromium/src/out/clangd/compile_commands.json && \
             /home/lg/working_dir/clangd_snapshot_20211205/bin/clangd-indexer --executor=all-TUs out/clangd/compile_commands.json >out/bromite/bromite.idx && \
             rm -rf out/clangd
-
-
