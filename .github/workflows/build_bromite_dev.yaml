@@ -207,7 +207,11 @@ jobs:
           test -d chromium/src/out/bromite_win || sudo mkdir -p chromium/src/out/bromite_win && \
             sudo chown lg chromium/src/out &&
             sudo chown lg chromium/src/out/bromite_win
-          
+
+          test -d chromium/src/out/bromite_x64 || sudo mkdir -p chromium/src/out/bromite_x64 && \
+            sudo chown lg chromium/src/out &&
+            sudo chown lg chromium/src/out/bromite_x64
+            
           # make kythe output directory
           test -d $KYTHE_OUTPUT_DIRECTORY || mkdir -p $KYTHE_OUTPUT_DIRECTORY
 
