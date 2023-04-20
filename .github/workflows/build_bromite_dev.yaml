@@ -179,8 +179,8 @@ jobs:
         TARGET_ISDEBUG: ${{ github.event.inputs.debug }} 
         TARGET_OS: ${{ github.event.inputs.target_os }}
       volumes:
-        - /storage/images/android/arm64/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
-        - /storage/images/android/x64/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_x64
+        - /storage/images/android/arm64/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite
+        - /storage/images/android/x64/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_x64
         - /storage/images/win/x64/${{ github.event.inputs.sha }}:/home/lg/working_dir/chromium/src/out/bromite_win
         - /tmp/proxy:/tmp/proxy
         - /win_sdk:/win_sdk
