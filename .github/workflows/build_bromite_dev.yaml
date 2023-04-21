@@ -306,7 +306,7 @@ jobs:
 
           
       - name: Generate breakpad symbols arm64
-        if: ${{ github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all' }}
+        if: ${{ (github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all') && (github.event.inputs.build == 'arm64' || github.event.inputs.build == 'all') }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
@@ -323,7 +323,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Generate Supersize data
-        if: ${{ github.event.inputs.debug == 'false' && (github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all') }}
+        if: ${{ github.event.inputs.debug == 'false' && (github.event.inputs.target_os == 'android' || github.event.inputs.target_os == 'all') && (github.event.inputs.build == 'arm64' || github.event.inputs.build == 'all') }}
         shell: bash
         run: |
           PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
