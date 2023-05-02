@@ -49,7 +49,7 @@ jobs:
         run: |
           GH=gh_2.18.1_linux_amd64/bin/gh
           WINOUT=/storage/images/win/x64/$BROMITE_SHA/
-          VERSION=v$(cat ${{ env.OUTPUTFILE_ARM64 }}/RELEASE)-${{ github.event.inputs.build }}
+          VERSION=v$(cat ${{ env.OUTPUTFILE_ARM64 }}/RELEASE)
 
           cd bromite
 
