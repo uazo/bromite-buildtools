@@ -9,10 +9,6 @@ on:
         description: 'uazo/bromite SHA'
         required: true
         default: '0a8ff322d6e9d738f7b2fa52618b178081bd100d'
-      build:
-        description: 'arch [arm64/x64]'
-        required: true
-        default: 'arm64'
       type:
         description: 'runner? [dev/ci]'
         required: true
@@ -22,14 +18,13 @@ env:
   BROMITE_SHA: ${{ github.event.inputs.sha }}
   REMOVEDOCKERSUPPORT: true
   USELOCALIMAGE: true
-  GOMAJOBS: 60
   
 jobs:
   release:
     runs-on: ${{ github.event.inputs.type }}
     env:
-      OUTPUTFILE_ARM64: /storage/images/android/arm64/${{ github.event.inputs.build }}/${{ github.event.inputs.sha }}
-      APK: ${{ github.event.inputs.build }}_ChromePublic.apk
+      OUTPUTFILE_ARM64: /storage/images/android/${{ github.event.inputs.sha }}/false/arm64/
+      OUTPUTFILE_X64: /storage/images/android/${{ github.event.inputs.sha }}/false/x64/
         
     steps:
       - name: Prepare container
@@ -71,13 +66,18 @@ jobs:
 
           $GH release create $VERSION-$BROMITE_SHA --notes-file note -d
 
-          # android
-          sudo cp ${{ env.OUTPUTFILE_ARM64 }}/apks/ChromePublic.apk ChromePublic.apk
-          sudo chown runner ChromePublic.apk
-          mv ChromePublic.apk $APK
-          echo Uploading $APK
-          $GH release upload $VERSION-$BROMITE_SHA $APK
-          
+          # android arm64
+          sudo cp ${{ env.OUTPUTFILE_ARM64 }}/apks/ChromePublic.apk arm64_ChromePublic.apk
+          sudo chown runner arm64_ChromePublic.apk
+          echo Uploading arm64_ChromePublic
+          $GH release upload $VERSION-$BROMITE_SHA arm64_ChromePublic.apk
+
+          # android x64
+          sudo cp ${{ env.OUTPUTFILE_X64 }}/apks/ChromePublic.apk x64_ChromePublic.apk
+          sudo chown runner x64_ChromePublic.apk
+          echo Uploading x64_ChromePublic
+          $GH release upload $VERSION-$BROMITE_SHA x64_ChromePublic.apk
+
           echo Uploading chrome.size
           test $VERSION-$BROMITE_SHA $OUTPUTFILE_ARM64/chrome.size && \
             $GH release upload $VERSION-$BROMITE_SHA $OUTPUTFILE_ARM64/chrome.size
