@@ -98,7 +98,7 @@ jobs:
           cp $WINOUT/chrome_proxy.exe chrome-win/
           cp $WINOUT/chrome_pwa_launcher.exe chrome-win/
           cp $WINOUT/chrome_wer.dll chrome-win/
-          cp "/win_sdk/10.0.20348.0/Windows Kits/10/Redist/D3D/x64/d3dcompiler_47.dll" chrome-win/
+          cp "/win_sdk/10.0.22621.0/Windows Kits/10/Redist/D3D/x64/d3dcompiler_47.dll" chrome-win/
           cp $WINOUT/elevation_service.exe chrome-win/
           cp "$WINOUT/First Run" chrome-win/
           cp $WINOUT/headless_lib_data.pak chrome-win/
