@@ -33,6 +33,7 @@ USER ${user}
 WORKDIR /home/${user}
 
 RUN wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps.sh \
+    wget https://raw.githubusercontent.com/chromium/chromium/$VERSION/build/install-build-deps.py \
     && \
     sed -i 's/snapcraft/wget/' install-build-deps.sh && \
     chmod +x ./install-build-deps.sh && \
